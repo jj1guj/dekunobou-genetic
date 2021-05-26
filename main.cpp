@@ -23,7 +23,7 @@ int main(){
     int M=100;//1世代での交叉回数
     int match_times=100;//対局回数
     float alpha=1e-2;//突然変異を起こす確率
-    double timelimit=60;//単位は秒
+    double timelimit=3600*7;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     ll itr=0;
 

@@ -65,14 +65,14 @@ int main(){
                 }
                 //確率に応じて突然変異を行う
                 if((float)rnd()/0xffffffff<=alpha){
-                    c=(float)rnd()/0xffffffff;
-                    while(c==c1[i])c=(float)rnd()/0xffffffff;
+                    c=2.0*(float)rnd()/0xffffffff-1.0;
+                    while(c==c1[i])c=2.0*(float)rnd()/0xffffffff-1.0;
                     c1[i]=c;
                 }
 
                 if((float)rnd()/0xffffffff<=alpha){
-                    c=(float)rnd()/0xffffffff;
-                    while(c==c2[i])c=(float)rnd()/0xffffffff;
+                    c=2.0*(float)rnd()/0xffffffff-1.0;
+                    while(c==c2[i])c=2.0*(float)rnd()/0xffffffff-1.0;
                     c2[i]=c;
                 }
             }

@@ -1,5 +1,6 @@
 #include"play.hpp"
-#define N 8192
+#include<fstream>
+#define N 1024
 using std::swap;
 
 float params[N][param_size];
@@ -21,7 +22,7 @@ int main(){
     for(int i=0;i<N;++i)init_param(params[i]);
 
     int M=100;//1世代での交叉回数
-    int match_times=100;//対局回数
+    int match_times=50;//対局回数
     float alpha=1e-2;//突然変異を起こす確率
     double timelimit=3600*7;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
@@ -122,16 +123,19 @@ int main(){
     //総当たり戦を行い最終的に1番強いパラメータを出力
     int winner;
     for(int i=0;i<N;++i)win_count[i]=0;
-    for(int i=0;i<N-1;++i)for(int j=i+1;j<N;++j){
-        for(int k=0;k<match_times;++k){
-            if(k%2==0){
-                winner=play_engine(params[i],params[j]);
-                if(winner==0)++win_count[i];
-                else if(winner==1)++win_count[j];
-            }else{
-                winner=play_engine(params[j],params[i]);
-                if(winner==0)++win_count[j];
-                else if(winner==1)++win_count[i];
+    for(int i=0;i<N-1;++i){
+        std::cout<<i<<std::endl;
+        for(int j=i+1;j<N;++j){
+            for(int k=0;k<match_times;++k){
+                if(k%2==0){
+                    winner=play_engine(params[i],params[j]);
+                    if(winner==0)++win_count[i];
+                    else if(winner==1)++win_count[j];
+                }else{
+                    winner=play_engine(params[j],params[i]);
+                    if(winner==0)++win_count[j];
+                    else if(winner==1)++win_count[i];
+                }
             }
         }
     }
@@ -147,15 +151,4 @@ int main(){
 
     std::cout<<win_max<<std::endl;
     for(int i=0;i<param_size;++i)std::cout<<params[best][i]<<std::endl;
-
-
-    //対局にかかる時間を計測する(100局やってその平均を取る)
-    /*std::chrono::system_clock::time_point start,end;
-    
-    start=std::chrono::system_clock::now();
-    for(int i=0;i<100;++i)++result[play_engine(param_black,param_white)];
-    end=std::chrono::system_clock::now();
-    double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-    std::cout<<elapsed<<" "<<elapsed/100.0<<std::endl;
-    std::cout<<result[0]<<" "<<result[1]<<" "<<result[2]<<std::endl;*/
 }

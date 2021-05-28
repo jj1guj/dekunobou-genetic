@@ -18,13 +18,14 @@ void init_param(float params[param_size]){
 
 int main(){
     std::random_device rnd;
+    std::ofstream eval_output("eval.txt");
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
     int M=100;//1世代での交叉回数
     int match_times=50;//対局回数
     float alpha=1e-2;//突然変異を起こす確率
-    double timelimit=3600*7;//単位は秒
+    double timelimit=24*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     ll itr=0;
 
@@ -39,7 +40,7 @@ int main(){
 
     while(true){
         ++itr;
-        std::cout<<"itr: "<<itr<<std::endl;
+        std::cout<<"Generation: "<<itr<<std::endl;
         
         //ランダムに2個体を選び出し、コピーする
         cur1=rnd()%N;
@@ -150,5 +151,7 @@ int main(){
     }
 
     std::cout<<win_max<<std::endl;
-    for(int i=0;i<param_size;++i)std::cout<<params[best][i]<<std::endl;
+    //output to file
+    for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
+    eval_output.close();
 }

@@ -1,4 +1,5 @@
 #include"play.hpp"
+//#include"experiment.hpp"
 #include<fstream>
 #define N 1024
 using std::swap;
@@ -16,13 +17,36 @@ void init_param(float params[param_size]){
     }
 }
 
+int load_eval(std::string filename,float param[param_size]){
+    std::ifstream inputs(filename);
+    std::string s;
+    int i=0;
+    if(inputs.fail()){
+        std::cout<<"Failed to openfile\n";
+        return -1;
+    }
+    while(getline(inputs,s)){
+        param[i]=std::stof(s);
+        std::cout<<param[i]<<std::endl;
+        ++i;
+    }
+    return 0;
+}
+
 int main(){
     std::random_device rnd;
     std::ofstream eval_output("eval.txt");
+
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
+    //load_eval("eval",params[0]);
+    //rating_test(params[0],params[1]);
+    
+
     int M=100;//1世代での交叉回数
+    int match_genetic=30;//評価時の対局数
+    int thresh=0.55*match_genetic;//勝数がこの値を超えたら採用
     int match_times=50;//対局回数
     float alpha=1e-2;//突然変異を起こす確率
     double timelimit=24*3600;//単位は秒
@@ -82,7 +106,7 @@ int main(){
             //子と親で対戦する(ここ並列化したい)
             win_val[0]=0;
             win_val[1]=0;
-            for(int b=0;b<match_times;++b){
+            for(int b=0;b<match_genetic;++b){
                 if(b%2==0){
                     r1=play_engine(g1,c1);
                     r2=play_engine(g2,c2);
@@ -97,11 +121,11 @@ int main(){
             }
 
             //子の方が勝ち越したら置き換える
-            if(win_val[0]>match_times/2){
+            if(win_val[0]>thresh){
                 for(int i=0;i<param_size;++i)g1[i]=c1[i];
             }
 
-            if(win_val[1]>match_times/2){
+            if(win_val[1]>thresh){
                 for(int i=0;i<param_size;++i)g2[i]=c2[i];
             }
         }

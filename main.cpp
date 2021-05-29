@@ -65,7 +65,11 @@ int main(){
     start=std::chrono::system_clock::now();
 
     int cur1,cur2,l,r;
-    int win_val[2],r1,r2;
+    int win_val[2],r1,r2,win_impossible[1000];
+    //thresh勝不可能ラインの前計算(条件分岐を奇数局目でしか行わないのでその分だけ計算)
+    for(int i=0;i<match_genetic/2;++i){
+        win_impossible[i]=thresh+2*(i-match_genetic);
+    }
     float c;
     float g1[param_size],g2[param_size],c1[param_size],c2[param_size];
 
@@ -114,11 +118,11 @@ int main(){
             win_val[0]=0;
             win_val[1]=0;
             for(int b=0;b<match_genetic;++b){
-                if(win_val[0]<=thresh){
+                if(win_impossible[b]<=win_val[0]&&win_val[0]<=thresh){
                     if(play_engine(g1,c1)==1)++win_val[0];
                     if(play_engine(c1,g1)==0)++win_val[0];
                 }
-                if(win_val[1]<=thresh){
+                if(win_impossible[b]<=win_val[1]&&win_val[1]<=thresh){
                     if(play_engine(g2,c2)==1)++win_val[1];
                     if(play_engine(c2,g2)==0)++win_val[1];
                 }

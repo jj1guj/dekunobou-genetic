@@ -54,6 +54,7 @@ int main(){
     ll itr=0;
 
     //遺伝的アルゴリズム
+    //なんか関数化して対局モードと切り替えられるようにしたい
     std::chrono::system_clock::time_point start,end;
     start=std::chrono::system_clock::now();
 

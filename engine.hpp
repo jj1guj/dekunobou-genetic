@@ -30,16 +30,22 @@ int go(Board board,float param[param_size]){
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[i];
 
+    //現在の評価値を算出
+    float eval_now=calc_eval(board,param);
+    float eval_diff;
     for(int i=0;i<moves.size();i++){
         ref=board;
 
-        //石を返す
-        ref.push(moves[i]);
+        //石を返す&差分計算を行う
+        eval_diff=ref.push_and_eval(moves[i],param);
+        //ref.push(moves[i]);
 
         //相手の打てる場所を数える
         LegalMoveList moves_opponent(ref);
         //評価値の算出
-        eval_ref=calc_eval(board,param)+param[64]*moves_opponent.size();
+        //eval_ref=calc_eval(board,param)+param[64]*moves_opponent.size();
+        eval_ref=eval_now+eval_diff+param[64]*moves_opponent.size();
+
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

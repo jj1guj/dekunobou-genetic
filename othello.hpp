@@ -66,7 +66,7 @@ class Board{
             for(int dir=0;dir<8;++dir){
                 for(int i=1;i<flip_limit[dir];++i){
                     row_n=row+di[dir]*i;
-                    col_n=col+dj[dir]*i
+                    col_n=col+dj[dir]*i;
                     board[row_n][col_n]=stone[turn];
                     eval_diff+=param[8*row_n+col_n];
                 }
@@ -163,7 +163,7 @@ class Board{
             }
         }
         if(flip_limit[7]>1)flip_count+=flip_limit[7]-1;
-        return flip_limit;
+        return flip_count;
     }
 
     private:

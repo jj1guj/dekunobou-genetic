@@ -28,7 +28,7 @@ int go(Board board,float param[param_size]){
     Board ref;
     float eval_ref;
     //1手だけのときはその手を返す
-    if(moves.size()==1)return moves[i];
+    if(moves.size()==1)return moves[0];
 
     //現在の評価値を算出
     float eval_now=calc_eval(board,param);

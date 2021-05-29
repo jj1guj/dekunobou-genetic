@@ -44,7 +44,13 @@ int main(){
     //rating_test(params[0],params[1]);
 
     //for debug
-    //play_engine(params[0],params[1]);
+    /*std::chrono::system_clock::time_point start,end;
+    start=std::chrono::system_clock::now();
+    for(int i=0;i<100;++i)play_engine(params[0],params[1]);
+    end=std::chrono::system_clock::now();
+    double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+    std::cout<<elapsed<<" "<<elapsed/100<<std::endl;*/
+
     
 
     int M=100;//1世代での交叉回数

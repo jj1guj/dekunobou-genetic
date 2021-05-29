@@ -42,6 +42,9 @@ int main(){
 
     //load_eval("eval",params[0]);
     //rating_test(params[0],params[1]);
+
+    //for debug
+    //play_engine(params[0],params[1]);
     
 
     int M=100;//1世代での交叉回数
@@ -55,7 +58,7 @@ int main(){
 
     //遺伝的アルゴリズム
     //なんか関数化して対局モードと切り替えられるようにしたい
-    std::chrono::system_clock::time_point start,end;
+    /*std::chrono::system_clock::time_point start,end;
     start=std::chrono::system_clock::now();
 
     int cur1,cur2,l,r;
@@ -178,5 +181,5 @@ int main(){
     std::cout<<win_max<<std::endl;
     //output to file
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
-    eval_output.close();
+    eval_output.close();*/
 }

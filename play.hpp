@@ -34,6 +34,9 @@ int play_engine(float param_black[param_size],float param_white[param_size]){
     int pass_count=0;
     int move;
     while(true){
+        //for debug
+        //disp(board);
+        
         if(pass_count>1)break;
         LegalMoveList moves(board);
 

@@ -24,21 +24,19 @@ class Board{
     int push(int move){
         if(0<=move&&move<=63){
             int row=move/8,col=move%8;
-            int fliped=0;//石を返した枚数
             if(board[row][col]!=0)return -1;
-            board[row][col]=stone[turn];
 
-            set_flip_limit(row,col);
-            
+            int fliped=set_flip_limit(row,col);//石を返した枚数
+            if(fliped==0)return -1;
+
             //石を返す
+            board[row][col]=stone[turn];
             for(int dir=0;dir<8;++dir){
                 for(int i=1;i<flip_limit[dir];++i){
                     board[row+di[dir]*i][col+dj[dir]*i]=stone[turn];
-                    ++fliped;
                 }
             }
-            if(fliped==0)return -1;
-
+            
             //着手後の石の枚数を計算
             point[turn]+=fliped+1;
             point[!turn]-=fliped;
@@ -47,9 +45,45 @@ class Board{
         return 0;
     }
 
-    void set_flip_limit(int row,int col){
+
+    //パスは0~63以外の数字にする
+    //石を返しながら盤の重みの差分を算出する
+    //手番側は返り値をそのまま足していいが相手側は(返り値-着手した場所の重み)を引かなくてはならない
+    float push_and_eval(int move,float param[param_size]){
+        float eval_diff=0;
+        if(0<=move&&move<=63){
+            int row=move/8,col=move%8;
+            if(board[row][col]!=0)return 0;
+
+            int fliped=set_flip_limit(row,col);//石を返した枚数
+            if(fliped==0)return 0;
+
+            //石を返す
+            //ここで差分計算を行う
+            int row_n,col_n;
+            board[row][col]=stone[turn];
+            eval_diff+=param[8*row+col];
+            for(int dir=0;dir<8;++dir){
+                for(int i=1;i<flip_limit[dir];++i){
+                    row_n=row+di[dir]*i;
+                    col_n=col+dj[dir]*i
+                    board[row_n][col_n]=stone[turn];
+                    eval_diff+=param[8*row_n+col_n];
+                }
+            }
+            
+        }
+        turn=!turn;//手番を反転
+        return eval_diff;
+    }
+
+    int set_flip_limit(int row,int col){
+        //ここのループ回数減らしたい
         //どこまで石を返していいかしらべる
         //コードもっと短くできる気がする
+
+        //返せる石の枚数を返り値にする
+        int flip_count=0;//何枚石を返せるか
         //横左方向
         flip_limit[0]=0;
         for(int i=1;i<=col;++i){
@@ -58,6 +92,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[0]>1)flip_count+=flip_limit[0]-1;
 
         //横右方向
         flip_limit[1]=0;
@@ -67,6 +102,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[1]>1)flip_count+=flip_limit[1]-1;
 
         //縦上方向
         flip_limit[2]=0;
@@ -76,6 +112,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[2]>1)flip_count+=flip_limit[2]-1;
 
         //縦下方向
         flip_limit[3]=0;
@@ -85,6 +122,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[3]>1)flip_count+=flip_limit[3]-1;
 
         //右斜め上方向
         flip_limit[4]=0;
@@ -94,6 +132,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[4]>1)flip_count+=flip_limit[4]-1;
 
         //右斜め下方向
         flip_limit[5]=0;
@@ -103,6 +142,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[5]>1)flip_count+=flip_limit[5]-1;
 
         //左斜め上方向
         flip_limit[6]=0;
@@ -112,6 +152,7 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[6]>1)flip_count+=flip_limit[6]-1;
 
         //左斜め下方向
         flip_limit[7]=0;
@@ -121,6 +162,8 @@ class Board{
                 break;
             }
         }
+        if(flip_limit[7]>1)flip_count+=flip_limit[7]-1;
+        return flip_limit;
     }
 
     private:

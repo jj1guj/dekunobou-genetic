@@ -58,7 +58,7 @@ int main(){
 
     //遺伝的アルゴリズム
     //なんか関数化して対局モードと切り替えられるようにしたい
-    /*std::chrono::system_clock::time_point start,end;
+    std::chrono::system_clock::time_point start,end;
     start=std::chrono::system_clock::now();
 
     int cur1,cur2,l,r;
@@ -124,7 +124,7 @@ int main(){
                 }
             }
 
-            //子の方が勝ち越したら置き換える
+            //子の勝ち数が閾値を超えたら置き換える
             if(win_val[0]>thresh){
                 for(int i=0;i<param_size;++i)g1[i]=c1[i];
             }
@@ -181,5 +181,5 @@ int main(){
     std::cout<<win_max<<std::endl;
     //output to file
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
-    eval_output.close();*/
+    eval_output.close();
 }

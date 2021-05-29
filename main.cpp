@@ -49,9 +49,11 @@ int main(){
 
     int M=100;//1世代での交叉回数
     int match_genetic=30;//評価時の対局数
-    match_genetic/=2;
     int thresh=0.55*match_genetic;//勝数がこの値を超えたら採用
+    match_genetic/=2;
+    
     int match_times=50;//対局回数
+    match_times/=2;
     float alpha=1e-2;//突然変異を起こす確率
     double timelimit=24*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
@@ -154,15 +156,13 @@ int main(){
         std::cout<<i<<std::endl;
         for(int j=i+1;j<N;++j){
             for(int k=0;k<match_times;++k){
-                if(k%2==0){
-                    winner=play_engine(params[i],params[j]);
-                    if(winner==0)++win_count[i];
-                    else if(winner==1)++win_count[j];
-                }else{
-                    winner=play_engine(params[j],params[i]);
-                    if(winner==0)++win_count[j];
-                    else if(winner==1)++win_count[i];
-                }
+                winner=play_engine(params[i],params[j]);
+                if(winner==0)++win_count[i];
+                else if(winner==1)++win_count[j];
+
+                winner=play_engine(params[j],params[i]);
+                if(winner==0)++win_count[j];
+                else if(winner==1)++win_count[i];
             }
         }
     }

@@ -49,6 +49,7 @@ int main(){
 
     int M=100;//1世代での交叉回数
     int match_genetic=30;//評価時の対局数
+    match_genetic/=2;
     int thresh=0.55*match_genetic;//勝数がこの値を超えたら採用
     int match_times=50;//対局回数
     float alpha=1e-2;//突然変異を起こす確率
@@ -111,16 +112,13 @@ int main(){
             win_val[0]=0;
             win_val[1]=0;
             for(int b=0;b<match_genetic;++b){
-                if(b%2==0){
-                    r1=play_engine(g1,c1);
-                    r2=play_engine(g2,c2);
-                    if(r1==1)++win_val[0];
-                    if(r2==1)++win_val[1];
-                }else{
-                    r1=play_engine(c1,g1);
-                    r2=play_engine(c2,g2);
-                    if(r1==0)++win_val[0];
-                    if(r2==0)++win_val[1];
+                if(win_val[0]<=thresh){
+                    if(play_engine(g1,c1)==1)++win_val[0];
+                    if(play_engine(c1,g1)==0)++win_val[0];
+                }
+                if(win_val[1]<=thresh){
+                    if(play_engine(g2,c2)==1)++win_val[1];
+                    if(play_engine(c2,g2)==0)++win_val[1];
                 }
             }
 

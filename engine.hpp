@@ -27,8 +27,13 @@ int go(Board board,float param[param_size]){
     bestmoves_num=0;
     Board ref;
     float eval_ref;
+    //1手だけのときはその手を返す
+    if(moves.size()==1)return moves[i];
+
     for(int i=0;i<moves.size();i++){
         ref=board;
+
+        //石を返す
         ref.push(moves[i]);
 
         //相手の打てる場所を数える

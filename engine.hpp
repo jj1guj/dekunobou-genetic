@@ -29,7 +29,7 @@ int go(Board board,float param[param_size]){
     
     bestmoves_num=0;
     Board ref;
-    float eval_ref;
+    float eval_ref,opponent_ref;
 
     //現在の評価値を算出
     //float eval_now=calc_eval(board,param);
@@ -42,8 +42,11 @@ int go(Board board,float param[param_size]){
 
         //相手の打てる場所を数える
         LegalMoveList moves_opponent(ref);
+        opponent_ref=0;
+        //相手がどんなところに置けるか
+        for(int j=0;j<moves_opponent.size();++j)opponent_ref+=param[moves_opponent[j]];
         //評価値の算出
-        eval_ref=param[moves[i]]+param[64]*moves_opponent.size();
+        eval_ref=param[moves[i]]+param[64]*opponent_ref;
 
         if(eval_ref>eval){
             bestmoves_num=0;

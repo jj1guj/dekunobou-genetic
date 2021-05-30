@@ -1,5 +1,5 @@
 #include"play.hpp"
-//#include"experiment.hpp"
+#include"experiment.hpp"
 #include<fstream>
 #define N 1024
 using std::swap;
@@ -40,8 +40,10 @@ int main(){
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
-    //load_eval("eval",params[0]);
+    //load_eval("eval.txt",params[0]);
     //rating_test(params[0],params[1]);
+    //人との対決用
+    //play_engine_human(params[0]);
 
     //for debug
     /*std::chrono::system_clock::time_point start,end;
@@ -61,7 +63,7 @@ int main(){
     int match_times=50;//対局回数
     match_times/=2;
     float alpha=1e-2;//突然変異を起こす確率
-    double timelimit=24*3600;//単位は秒
+    double timelimit=3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     ll itr=0;
 

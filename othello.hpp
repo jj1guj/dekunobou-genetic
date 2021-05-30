@@ -237,4 +237,5 @@ void disp_teban(Board board){
         }
         std::cout<<std::endl;
     }
+    std::cout<<std::endl;
 }

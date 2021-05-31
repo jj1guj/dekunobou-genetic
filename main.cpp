@@ -185,7 +185,7 @@ int main(){
         if(itr%10==0){
             end=std::chrono::system_clock::now();
             double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-            std::cout<<itr<<" elapsed:"<<elapsed/1000<<std::endl;
+            std::cout<<itr<<" elapsed:"<<elapsed/1000<<std::endl<<std::endl;
             if(elapsed>timelimit)break;
         }
     }

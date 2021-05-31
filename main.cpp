@@ -157,6 +157,7 @@ int main(int argc,char** argv){
     int cursors[256],cur_now;
     bool cur_used[N];
     for(int i=0;i<N;++i)cur_used[i]=false;
+    int memsize=sizeof(params[0]);
 
     while(true){
         ++itr;
@@ -167,7 +168,8 @@ int main(int argc,char** argv){
             cursors[i]=rnd()%N;
             while(cur_used[cursors[i]])cursors[i]=rnd()%N;
             cur_used[cursors[i]]=true;
-            for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
+            
+            memcpy(G[i],params[cursors[i]],memsize);
         }
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;
@@ -181,9 +183,7 @@ int main(int argc,char** argv){
         //遺伝子をもとに戻す
         for(int i=0;i<concurrency*2;++i){
             cur_used[cursors[i]]=false;
-            for(int j=0;j<param_size;++j){
-                params[cursors[i]][j]=G[i][j];
-            }
+            memcpy(params[cursors[i]],G[i],memsize);
         }
 
         if(itr%10==0){

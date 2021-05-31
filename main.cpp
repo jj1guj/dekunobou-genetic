@@ -102,7 +102,7 @@ void intersection(float p1[param_size],float p2[param_size]){
 }
 
 int main(int argc,char** argv){
-    int threads=1;
+    int threads=0;
     if(argc>1)threads=atoi(argv[1]);
 
     std::ofstream eval_output("eval.txt");
@@ -151,7 +151,7 @@ int main(int argc,char** argv){
     
     //並列化用に準備
     int concurrency=omp_get_max_threads();
-    concurrency=std::min(concurrency,threads);
+    if(threads>0)concurrency=std::min(concurrency,threads);
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;
@@ -172,8 +172,8 @@ int main(int argc,char** argv){
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;
 
-        //OpenMPならいけるんとちゃうか?
-        #pragma omp parallel for
+        //交叉を並列に実行
+        #pragma omp parallel for num_threads(concurrency)
         for(int i=0;i<concurrency;++i){
             intersection(G[2*i],G[2*i+1]);
         }

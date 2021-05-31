@@ -1,7 +1,6 @@
 #include"play.hpp"
 #include"experiment.hpp"
 #include<fstream>
-#include<thread>
 #include<vector>
 #include<omp.h>
 #define N 1024
@@ -131,7 +130,7 @@ int main(){
     match_times=50;//対局回数
     match_times/=2;
     alpha=1e-2;//突然変異を起こす確率
-    timelimit=24*3600;//単位は秒
+    timelimit=10*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     itr=0;
 
@@ -148,7 +147,8 @@ int main(){
     }
     
     //並列化用に準備
-    int concurrency=std::thread::hardware_concurrency();
+    int concurrency=omp_get_max_threads();
+    std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;
     bool cur_used[N];

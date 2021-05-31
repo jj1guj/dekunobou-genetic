@@ -1,14 +1,23 @@
 #include"play.hpp"
 #include"experiment.hpp"
 #include<fstream>
+#include<thread>
+#include<vector>
 #define N 1024
 using std::swap;
 
 float params[N][param_size];
 
 float param_black[param_size],param_white[param_size];
-int result[3];
+int result[3],win_impossible[1000];
 ll win_count[N];
+
+//遺伝的アルゴリズム関連のパラメータをグローバル変数として定義
+int M,match_genetic,thresh,match_times;
+float alpha;
+double timelimit;
+ll itr;
+std::random_device rnd;
 
 void init_param(float params[param_size]){
     std::random_device rnd;
@@ -33,8 +42,67 @@ int load_eval(std::string filename,float param[param_size]){
     return 0;
 }
 
-int main(){
+//交叉(並列化したいので関数化する)
+void intersection(float p1[param_size],float p2[param_size]){
     std::random_device rnd;
+    int win_val[2];
+    float c,c1[param_size],c2[param_size];
+    std::cout<<"a\n";
+    //M回交叉する
+    for(int m=0;m<M;++m){
+        int l=rnd()%param_size;
+        int r=rnd()%param_size;
+        while(l==r)r=rnd()%param_size;
+        if(r<l)swap(r,l);
+        for(int i=0;i<param_size;++i){
+            if(l<=i&&i<=r){
+                c1[i]=p2[i];
+                c2[i]=p1[i];
+            }else{
+                c1[i]=p1[i];
+                c2[i]=p2[i];
+            }
+            //確率に応じて突然変異を行う
+            if((float)rnd()/0xffffffff<=alpha){
+                c=2.0*(float)rnd()/0xffffffff-1.0;
+                while(c==c1[i])c=2.0*(float)rnd()/0xffffffff-1.0;
+                c1[i]=c;
+            }
+
+            if((float)rnd()/0xffffffff<=alpha){
+                c=2.0*(float)rnd()/0xffffffff-1.0;
+                while(c==c2[i])c=2.0*(float)rnd()/0xffffffff-1.0;
+                c2[i]=c;
+            }
+        }
+
+        //子と親で対戦する(ここ並列化したい)
+        win_val[0]=0;
+        win_val[1]=0;
+        for(int b=0;b<match_genetic;++b){
+            if(win_impossible[b]<=win_val[0]&&win_val[0]<=thresh){
+                if(play_engine(p1,c1)==1)++win_val[0];
+                if(play_engine(c1,p1)==0)++win_val[0];
+            }
+            if(win_impossible[b]<=win_val[1]&&win_val[1]<=thresh){
+                if(play_engine(p2,c2)==1)++win_val[1];
+                if(play_engine(c2,p2)==0)++win_val[1];
+            }
+        }
+        std::cout<<m<<std::endl;
+
+        //子の勝ち数が閾値を超えたら置き換える
+        if(win_val[0]>thresh){
+            for(int i=0;i<param_size;++i)p1[i]=c1[i];
+        }
+
+        if(win_val[1]>thresh){
+            for(int i=0;i<param_size;++i)p2[i]=c2[i];
+        }
+    }
+}
+
+int main(){
     std::ofstream eval_output("eval.txt");
 
     //パラメータの初期化
@@ -55,17 +123,17 @@ int main(){
 
     
 
-    int M=100;//1世代での交叉回数
-    int match_genetic=30;//評価時の対局数
-    int thresh=0.55*match_genetic;//勝数がこの値を超えたら採用
+    M=100;//1世代での交叉回数
+    match_genetic=30;//評価時の対局数
+    thresh=0.55*match_genetic;//勝数がこの値を超えたら採用
     match_genetic/=2;
     
-    int match_times=50;//対局回数
+    match_times=50;//対局回数
     match_times/=2;
-    float alpha=1e-2;//突然変異を起こす確率
-    double timelimit=3600;//単位は秒
+    alpha=1e-2;//突然変異を起こす確率
+    timelimit=72*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
-    ll itr=0;
+    itr=0;
 
     //遺伝的アルゴリズム
     //なんか関数化して対局モードと切り替えられるようにしたい
@@ -73,20 +141,53 @@ int main(){
     start=std::chrono::system_clock::now();
 
     int cur1,cur2,l,r;
-    int win_val[2],r1,r2,win_impossible[1000];
+    int r1,r2;
     //thresh勝不可能ラインの前計算(条件分岐を奇数局目でしか行わないのでその分だけ計算)
     for(int i=0;i<match_genetic/2;++i){
         win_impossible[i]=thresh+2*(i-match_genetic);
     }
     float c;
     float g1[param_size],g2[param_size],c1[param_size],c2[param_size];
+    
+    //並列化用に準備
+    int concurrency=std::thread::hardware_concurrency();
+    concurrency=2;
+    std::vector<std::thread>threads;
+    float G[256][param_size];
+    int cursors[256],cur_now;
+    bool cur_used[N];
+    for(int i=0;i<N;++i)cur_used[i]=false;
 
     while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
         
+        //ランダムにthread数×2個体選び出しコピーする
+        for(int i=0;i<concurrency*2;++i){
+            cursors[i]=rnd()%N;
+            while(cur_used[cursors[i]])cursors[i]=rnd()%N;
+            cur_used[cursors[i]]=true;
+            for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
+        }
+        for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
+        std::cout<<std::endl;
+
+        //コンテナに格納
+        threads.clear();
+        for(int i=0;i<concurrency;++i)threads.push_back(std::thread(intersection,std::ref(G[2*i]),std::ref(G[2*i+1])));
+
+        //マルチスレッドで交叉する
+        for(std::thread &th:threads)th.join();
+
+        //遺伝子をもとに戻す
+        for(int i=0;i<concurrency*2;++i){
+            cur_used[cursors[i]]=false;
+            for(int j=0;j<param_size;++j){
+                params[cursors[i]][j]=G[i][j];
+            }
+        }
         //ランダムに2個体を選び出し、コピーする
-        cur1=rnd()%N;
+        /*cur1=rnd()%N;
         cur2=rnd()%N;
         while(cur1==cur2)cur2=rand()%N;
         for(int i=0;i<param_size;++i){
@@ -95,67 +196,18 @@ int main(){
         }
 
         //M回交叉する
-        for(int m=0;m<M;++m){
-            l=rnd()%param_size;
-            r=rnd()%param_size;
-            while(l==r)r=rnd()%param_size;
-            if(r<l)swap(r,l);
-            for(int i=0;i<param_size;++i){
-                if(l<=i&&i<=r){
-                    c1[i]=g2[i];
-                    c2[i]=g1[i];
-                }else{
-                    c1[i]=g1[i];
-                    c2[i]=g2[i];
-                }
-                //確率に応じて突然変異を行う
-                if((float)rnd()/0xffffffff<=alpha){
-                    c=2.0*(float)rnd()/0xffffffff-1.0;
-                    while(c==c1[i])c=2.0*(float)rnd()/0xffffffff-1.0;
-                    c1[i]=c;
-                }
-
-                if((float)rnd()/0xffffffff<=alpha){
-                    c=2.0*(float)rnd()/0xffffffff-1.0;
-                    while(c==c2[i])c=2.0*(float)rnd()/0xffffffff-1.0;
-                    c2[i]=c;
-                }
-            }
-
-            //子と親で対戦する(ここ並列化したい)
-            win_val[0]=0;
-            win_val[1]=0;
-            for(int b=0;b<match_genetic;++b){
-                if(win_impossible[b]<=win_val[0]&&win_val[0]<=thresh){
-                    if(play_engine(g1,c1)==1)++win_val[0];
-                    if(play_engine(c1,g1)==0)++win_val[0];
-                }
-                if(win_impossible[b]<=win_val[1]&&win_val[1]<=thresh){
-                    if(play_engine(g2,c2)==1)++win_val[1];
-                    if(play_engine(c2,g2)==0)++win_val[1];
-                }
-            }
-
-            //子の勝ち数が閾値を超えたら置き換える
-            if(win_val[0]>thresh){
-                for(int i=0;i<param_size;++i)g1[i]=c1[i];
-            }
-
-            if(win_val[1]>thresh){
-                for(int i=0;i<param_size;++i)g2[i]=c2[i];
-            }
-        }
+        intersection(g1,g2);
 
         //g1, g2をもとに戻す
         for(int i=0;i<param_size;++i){
             params[cur1][i]=g1[i];
             params[cur2][i]=g2[i];
-        }
+        }*/
 
         if(itr%10==0){
             end=std::chrono::system_clock::now();
             double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-            std::cout<<itr<<" "<<elapsed<<std::endl;
+            std::cout<<itr<<" "<<elapsed/1000<<std::endl;
             if(elapsed>timelimit)break;
         }
     }
@@ -188,7 +240,7 @@ int main(){
         }
     }
 
-    std::cout<<win_max<<std::endl;
+    std::cout<<win_max<<"/"<<(N-1)*match_times*2<<std::endl;
     //output to file
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
     eval_output.close();

@@ -1,26 +1,22 @@
 #これを参考にした
 #https://spcx8.hatenablog.com/entry/2018/10/09/070000
+#https://tomosoft.jp/design/?p=29005
+import cv2
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 import os
 
-#これを参考にした
-#https://tomosoft.jp/design/?p=29005
-import cv2
-
-
-#画像の生成
-file_path="data/"
+file_path="build/data/"
 file_num=len(os.listdir(file_path))
 
 #動画の設定
 mov_h=480
 mov_w=640
-
 fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
 video=cv2.VideoWriter("result.mp4",fourcc,2.0,(mov_w,mov_h),True)
+
 plt.figure()
 for i in range(1,file_num+1):
     filename=file_path+"out_{}.csv".format(i)

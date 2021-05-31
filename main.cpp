@@ -162,12 +162,14 @@ int main(int argc,char** argv){
         std::cout<<"Generation: "<<itr<<std::endl;
 
         //今の重みをファイルに出力
-        std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
-        for(int i=0;i<N;++i){
-            for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
-            test_output<<std::endl;
+        if(itr==1||itr%5==0){
+            std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
+            for(int i=0;i<N;++i){
+                for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+                test_output<<std::endl;
+            }
+            test_output.close();
         }
-        test_output.close();
         
         //ランダムにthread数×2個体選び出しコピーする
         for(int i=0;i<concurrency*2;++i){

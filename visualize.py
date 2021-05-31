@@ -17,8 +17,13 @@ mov_w=640
 fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
 video=cv2.VideoWriter("result.mp4",fourcc,2.0,(mov_w,mov_h),True)
 
+#刻み幅を指定
+L=[i for i in range(0,5*file_num-4,5)]
+L[0]=1
+print(L)
+
 plt.figure()
-for i in range(1,file_num+1):
+for i in L:
     filename=file_path+"out_{}.csv".format(i)
     with open(filename) as f:
         data=f.readlines()

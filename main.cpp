@@ -148,7 +148,7 @@ int main(){
     }
     
     //並列化用に準備
-    int concurrency=6;
+    int concurrency=std::thread::hardware_concurrency();
     float G[256][param_size];
     int cursors[256],cur_now;
     bool cur_used[N];

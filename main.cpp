@@ -105,8 +105,6 @@ int main(int argc,char** argv){
     int threads=0;
     if(argc>1)threads=atoi(argv[1]);
 
-    std::ofstream eval_output("eval.txt");
-
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
@@ -162,6 +160,13 @@ int main(int argc,char** argv){
     while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
+
+        //今の重みをファイルに出力
+        std::ofstream test_output("out_"+std::to_string(itr)+".csv");
+        for(int i=0;i<N;++i){
+            for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+            test_output<<std::endl;
+        }
         
         //ランダムにthread数×2個体選び出しコピーする
         for(int i=0;i<concurrency*2;++i){
@@ -224,6 +229,7 @@ int main(int argc,char** argv){
 
     std::cout<<win_max<<"/"<<(N-1)*match_times*2<<std::endl;
     //output to file
+    std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
     eval_output.close();
 }

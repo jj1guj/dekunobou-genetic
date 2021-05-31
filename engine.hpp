@@ -7,9 +7,6 @@
  64: 置ける場所の数に対する重み
  65: 多分確定石(近似値)に対する重み
 ***********/
-int BestMoves[64];
-int bestmoves_num;
-std::random_device rnd_select;
 
 //評価値の計算(手番側が有利ならプラス)
 float calc_eval(Board board,float param[param_size]){
@@ -26,6 +23,10 @@ int go(Board board,float param[param_size]){
     LegalMoveList moves(board);
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[0];
+
+    int BestMoves[64];
+    int bestmoves_num;
+    std::random_device rnd_select;
     
     bestmoves_num=0;
     Board ref;

@@ -48,7 +48,7 @@ void intersection(float p1[param_size],float p2[param_size]){
     std::random_device rnd;
     int win_val[2];
     float c,c1[param_size],c2[param_size];
-    std::cout<<"a\n";
+
     //M回交叉する
     for(int m=0;m<M;++m){
         int l=rnd()%param_size;
@@ -90,7 +90,6 @@ void intersection(float p1[param_size],float p2[param_size]){
                 if(play_engine(c2,p2)==0)++win_val[1];
             }
         }
-        std::cout<<m<<std::endl;
 
         //子の勝ち数が閾値を超えたら置き換える
         if(win_val[0]>thresh){
@@ -147,12 +146,9 @@ int main(){
     for(int i=0;i<match_genetic/2;++i){
         win_impossible[i]=thresh+2*(i-match_genetic);
     }
-    float c;
-    float g1[param_size],g2[param_size],c1[param_size],c2[param_size];
     
     //並列化用に準備
-    int concurrency=std::thread::hardware_concurrency();
-    concurrency=2;
+    int concurrency=6;
     float G[256][param_size];
     int cursors[256],cur_now;
     bool cur_used[N];

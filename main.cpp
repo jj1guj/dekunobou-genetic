@@ -150,7 +150,7 @@ int main(int argc,char** argv){
     }
     
     //並列化用に準備
-    int concurrency=omp_get_max_threads();
+    int concurrency=std::min(omp_get_max_threads(),N);
     if(threads>0)concurrency=std::min(concurrency,threads);
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];

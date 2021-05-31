@@ -181,28 +181,11 @@ int main(){
                 params[cursors[i]][j]=G[i][j];
             }
         }
-        //ランダムに2個体を選び出し、コピーする
-        /*cur1=rnd()%N;
-        cur2=rnd()%N;
-        while(cur1==cur2)cur2=rand()%N;
-        for(int i=0;i<param_size;++i){
-            g1[i]=params[cur1][i];
-            g2[i]=params[cur2][i];
-        }
-
-        //M回交叉する
-        intersection(g1,g2);
-
-        //g1, g2をもとに戻す
-        for(int i=0;i<param_size;++i){
-            params[cur1][i]=g1[i];
-            params[cur2][i]=g2[i];
-        }*/
 
         if(itr%10==0){
             end=std::chrono::system_clock::now();
             double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-            std::cout<<itr<<" "<<elapsed/1000<<std::endl;
+            std::cout<<itr<<" elapsed:"<<elapsed/1000<<std::endl;
             if(elapsed>timelimit)break;
         }
     }

@@ -157,19 +157,17 @@ int main(int argc,char** argv){
     for(int i=0;i<N;++i)cur_used[i]=false;
     int memsize=sizeof(params[0]);
 
+    //初期の重みを出力
+    std::ofstream test_output("data/out_1.csv");
+    for(int i=0;i<N;++i){
+        for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+        test_output<<std::endl;
+    }
+    test_output.close();
+
     while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
-
-        //今の重みをファイルに出力
-        if(itr==1||itr%5==0){
-            std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
-            for(int i=0;i<N;++i){
-                for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
-                test_output<<std::endl;
-            }
-            test_output.close();
-        }
         
         //ランダムにthread数×2個体選び出しコピーする
         for(int i=0;i<concurrency*2;++i){
@@ -192,6 +190,16 @@ int main(int argc,char** argv){
         for(int i=0;i<concurrency*2;++i){
             cur_used[cursors[i]]=false;
             memcpy(params[cursors[i]],G[i],memsize);
+        }
+
+        //今の重みをファイルに出力
+        if(itr%5==0){
+            std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
+            for(int i=0;i<N;++i){
+                for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+                test_output<<std::endl;
+            }
+            test_output.close();
         }
 
         if(itr%10==0){

@@ -3,6 +3,7 @@
 #include<fstream>
 #include<thread>
 #include<vector>
+#include<omp.h>
 #define N 1024
 using std::swap;
 
@@ -152,7 +153,6 @@ int main(){
     //並列化用に準備
     int concurrency=std::thread::hardware_concurrency();
     concurrency=2;
-    std::vector<std::thread>threads;
     float G[256][param_size];
     int cursors[256],cur_now;
     bool cur_used[N];
@@ -172,12 +172,11 @@ int main(){
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;
 
-        //コンテナに格納
-        threads.clear();
-        for(int i=0;i<concurrency;++i)threads.push_back(std::thread(intersection,std::ref(G[2*i]),std::ref(G[2*i+1])));
-
-        //マルチスレッドで交叉する
-        for(std::thread &th:threads)th.join();
+        //OpenMPならいけるんとちゃうか?
+        #pragma omp parallel for
+        for(int i=0;i<concurrency;++i){
+            intersection(G[2*i],G[2*i+1]);
+        }
 
         //遺伝子をもとに戻す
         for(int i=0;i<concurrency*2;++i){

@@ -101,7 +101,10 @@ void intersection(float p1[param_size],float p2[param_size]){
     }
 }
 
-int main(){
+int main(int argc,char** argv){
+    int threads=1;
+    if(argc>1)threads=atoi(argv[1]);
+
     std::ofstream eval_output("eval.txt");
 
     //パラメータの初期化
@@ -148,6 +151,7 @@ int main(){
     
     //並列化用に準備
     int concurrency=omp_get_max_threads();
+    concurrency=std::min(concurrency,threads);
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;

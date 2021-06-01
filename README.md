@@ -5,7 +5,8 @@ Twitter上では<del>[遺伝的アルゴリズムくん](https://twitter.com/jj1
 1手読みのAI同士を対戦させることでより勝率の高い評価関数を生成する.  
 # 動作環境
 <del>WSL又はLinux系OS</del>Windows(VisualStudio)でもビルドできると思います  
-ビルドに当たりcmake, make, OpenMPが必要です.
+ビルドに当たりcmake, make, OpenMPが必要です.  
+可視化用のPythonスクリプトではmatplotlib, OpenCV, numpyが必要です.
 # ビルド
 ```
 mkdir build && cd build

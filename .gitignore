@@ -3,3 +3,4 @@ build/**
 out/**
 *.csv
 *.mp4
+*.png

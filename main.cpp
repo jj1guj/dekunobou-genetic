@@ -240,7 +240,7 @@ int main(int argc,char** argv){
         }
     }
 
-    std::cout<<win_max<<"/"<<(N-1)*match_times*2<<std::endl;
+    std::cout<<win_max<<"/"<<(N-1)*match_times*2<<" "<<(float)win_max/((N-1)*match_times*2)<<std::endl;
     //output to file
     std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;

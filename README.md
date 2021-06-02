@@ -22,3 +22,10 @@ make
 ./dekunobou [スレッド数]
 ```
 スレッド数の指定がないと動作環境での最大スレッド数で動作します
+
+# 生成した評価関数(eval.txt)を可視化したい
+numpy, matplotlibが必要です.
+```
+python eval_visualize.py
+```
+これで.pngファイルが出力されます.

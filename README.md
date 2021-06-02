@@ -6,7 +6,7 @@ Twitter上では<del>[遺伝的アルゴリズムくん](https://twitter.com/jj1
 # 動作環境
 <del>WSL又はLinux系OS</del>Windows(VisualStudio)でもビルドできると思います  
 ビルドに当たりcmake, make, OpenMPが必要です.  
-可視化用のPythonスクリプトではmatplotlib, OpenCV, numpyが必要です.
+可視化用のPythonスクリプトではmatplotlib, OpenCV, numpy, tqdmが必要です.
 # ビルド
 ```
 mkdir build && cd build

@@ -103,10 +103,10 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     }
 
     //遺伝子をもとに戻す
-    /*cur_used[cur1]=false;
+    cur_used[cur1]=false;
     cur_used[cur2]=false;
-    memcpy(p1,params[cur1],memsize);
-    memcpy(p2,params[cur2],memsize);*/
+    memcpy(params[cur1],p1,memsize);
+    memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){
@@ -191,15 +191,6 @@ int main(int argc,char** argv){
         #pragma omp parallel for num_threads(concurrency)
         for(int i=0;i<concurrency;++i){
             intersection(G[2*i],G[2*i+1],cursors[2*i],cursors[2*i+1]);
-            /*cur_used[cursors[2*i]]=false;
-            cur_used[cursors[2*i+1]]=false;
-            memcpy(G[2*i],params[cursors[2*i]],memsize);
-            memcpy(G[2*i+1],params[cursors[2*i+1]],memsize);*/
-        }
-
-        for(int i=0;i<concurrency*2;++i){
-            cur_used[cursors[i]]=false;
-            memcpy(G[i],params[cursors[i]],memsize);
         }
 
         //今の重みをファイルに出力

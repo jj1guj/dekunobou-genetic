@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+import tqdm
 
 file_path="build/data/"
 file_num=len(os.listdir(file_path))
@@ -23,7 +24,8 @@ L[0]=1
 print(L)
 
 plt.figure()
-for i in L:
+for j in tqdm.tqdm(range(len(L))):
+    i=L[j]
     filename=file_path+"out_{}.csv".format(i)
     with open(filename) as f:
         data=f.readlines()

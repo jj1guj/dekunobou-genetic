@@ -16,11 +16,20 @@ float eval_calc(Board board,int move,float param[param_size]){
     //相手の合法手をカウント
     LegalMoveList moves(board);
     for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
-    return out+param[64]*moves_opponent_sum;
+    return out+param[64]*moves_opponent_sum+param[65]*(board.point[board.turn]-board.point[!board.turn]);
+}
+
+void minimax(Board board,float param[param_size],int depth){
+    float eval_max=-inf;
+    int BestMoves[64];
+    int bestmoves_num=0;
+    //ノードの展開
+    LegalMoveList moves(board);
+    
 }
 
 int go(Board board,float param[param_size]){
-    float eval=-std::numeric_limits<float>::infinity();
+    float eval=-inf;
     LegalMoveList moves(board);
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[0];
@@ -46,6 +55,7 @@ int go(Board board,float param[param_size]){
             ++bestmoves_num;
         }
     }
-    std::cout<<"eval: "<<eval<<std::endl;
+    //for debug
+    //std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

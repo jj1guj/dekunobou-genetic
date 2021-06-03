@@ -15,10 +15,10 @@ file_num=len(os.listdir(file_path))
 mov_h=480
 mov_w=640
 fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
-video=cv2.VideoWriter("result.mp4",fourcc,2.0,(mov_w,mov_h),True)
+video=cv2.VideoWriter("result.mp4",fourcc,5.0,(mov_w,mov_h),True)
 
 #刻み幅を指定
-L=[i for i in range(0,5*file_num-4,5)]
+L=[i for i in range(0,100*file_num-99,100)]
 L[0]=1
 print(L)
 

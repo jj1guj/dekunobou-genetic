@@ -195,12 +195,12 @@ int main(int argc,char** argv){
 
         //今の重みをファイルに出力
         if(itr%100==0){
-            std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
+            std::ofstream test_output_final("data/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
-                for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+                for(int j=0;j<param_size;++j)test_output_final<<params[i][j]<<",";
                 test_output<<std::endl;
             }
-            test_output.close();
+            test_output_final.close();
         }
 
         if(itr%10==0){

@@ -139,7 +139,7 @@ int main(int argc,char** argv){
     match_times=50;//対局回数
     match_times/=2;
     alpha=1e-2;//突然変異を起こす確率
-    timelimit=10*3600;//単位は秒
+    timelimit=72*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     itr=0;
 
@@ -194,7 +194,7 @@ int main(int argc,char** argv){
         }
 
         //今の重みをファイルに出力
-        if(itr%5==0){
+        if(itr%100==0){
             std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
                 for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
@@ -210,6 +210,14 @@ int main(int argc,char** argv){
             if(elapsed>timelimit)break;
         }
     }
+
+    //1番最後の重みをファイルに出力
+    std::ofstream test_output("data/out_"+std::to_string(itr)+".csv");
+    for(int i=0;i<N;++i){
+        for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
+        test_output<<std::endl;
+    }
+    test_output.close();
 
 
     //総当たり戦を行い最終的に1番強いパラメータを出力

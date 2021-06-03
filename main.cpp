@@ -7,6 +7,7 @@
 using std::swap;
 
 float params[N][param_size];
+int memsize=sizeof(params[0]);
 
 float param_black[param_size],param_white[param_size];
 int result[3],win_impossible[1000];
@@ -17,6 +18,7 @@ int M,match_genetic,thresh,match_times;
 float alpha;
 double timelimit;
 ll itr;
+bool cur_used[N];
 std::random_device rnd;
 
 void init_param(float params[param_size]){
@@ -43,7 +45,7 @@ int load_eval(std::string filename,float param[param_size]){
 }
 
 //交叉(並列化したいので関数化する)
-void intersection(float p1[param_size],float p2[param_size]){
+void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     std::random_device rnd;
     int win_val[2];
     float c,c1[param_size],c2[param_size];
@@ -99,6 +101,12 @@ void intersection(float p1[param_size],float p2[param_size]){
             for(int i=0;i<param_size;++i)p2[i]=c2[i];
         }
     }
+
+    //遺伝子をもとに戻す
+    cur_used[cur1]=false;
+    cur_used[cur2]=false;
+    memcpy(params[cur1],p1,memsize);
+    memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){
@@ -153,9 +161,8 @@ int main(int argc,char** argv){
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;
-    bool cur_used[N];
+    //bool cur_used[N];
     for(int i=0;i<N;++i)cur_used[i]=false;
-    int memsize=sizeof(params[0]);
 
     //初期の重みを出力
     std::ofstream test_output("data/out_1.csv");
@@ -183,13 +190,7 @@ int main(int argc,char** argv){
         //交叉を並列に実行
         #pragma omp parallel for num_threads(concurrency)
         for(int i=0;i<concurrency;++i){
-            intersection(G[2*i],G[2*i+1]);
-        }
-
-        //遺伝子をもとに戻す
-        for(int i=0;i<concurrency*2;++i){
-            cur_used[cursors[i]]=false;
-            memcpy(params[cursors[i]],G[i],memsize);
+            intersection(G[2*i],G[2*i+1],cursors[2*i],cursors[2*i+1]);
         }
 
         //今の重みをファイルに出力
@@ -216,6 +217,7 @@ int main(int argc,char** argv){
     for(int i=0;i<N;++i)win_count[i]=0;
     for(int i=0;i<N-1;++i){
         std::cout<<i<<std::endl;
+        #pragma omp parallel for num_threads(concurrency)
         for(int j=i+1;j<N;++j){
             for(int k=0;k<match_times;++k){
                 winner=play_engine(params[i],params[j]);
@@ -238,7 +240,7 @@ int main(int argc,char** argv){
         }
     }
 
-    std::cout<<win_max<<"/"<<(N-1)*match_times*2<<std::endl;
+    std::cout<<win_max<<"/"<<(N-1)*match_times*2<<" "<<(float)win_max/((N-1)*match_times*2)<<std::endl;
     //output to file
     std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;

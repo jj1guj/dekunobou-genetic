@@ -6,7 +6,7 @@ Twitter上では<del>[遺伝的アルゴリズムくん](https://twitter.com/jj1
 # 動作環境
 <del>WSL又はLinux系OS</del>Windows(VisualStudio)でもビルドできると思います  
 ビルドに当たりcmake, make, OpenMPが必要です.  
-可視化用のPythonスクリプトではmatplotlib, OpenCV, numpyが必要です.
+可視化用のPythonスクリプトではmatplotlib, OpenCV, numpy, tqdmが必要です.
 # ビルド
 ```
 mkdir build && cd build
@@ -17,3 +17,15 @@ make
 ```
 ./dekunobou
 ```
+スレッド数を指定したい場合は
+```
+./dekunobou [スレッド数]
+```
+スレッド数の指定がないと動作環境での最大スレッド数で動作します
+
+# 生成した評価関数(eval.txt)を可視化したい
+numpy, matplotlibが必要です.
+```
+python eval_visualize.py
+```
+これで.pngファイルが出力されます.

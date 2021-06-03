@@ -227,7 +227,7 @@ void disp_teban(Board board){
     for(int i=0;i<8;++i){
         for(int j=0;j<8;++j){
             //合法手だったらidを表示
-            if(moves.size()>0 && moves[moves_count]==8*i+j){
+            if(moves.size()>0 && moves[moves_count]==8*i+j && moves_count<moves.size()){
                 ++moves_count;
                 if(moves_count>=10)std::cout<<moves_count;
                 else std::cout<<moves_count<<" ";

@@ -154,7 +154,8 @@ int main(int argc,char** argv){
     double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
     std::cout<<elapsed<<" "<<elapsed/100<<std::endl;*/
 
-    
+    //最終的に出力する評価関数のファイル名
+    std::string eval_output_filename="eval.txt";
 
     M=100;//1世代での交叉回数
     match_genetic=30;//評価時の対局数

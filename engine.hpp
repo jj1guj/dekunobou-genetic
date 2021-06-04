@@ -17,7 +17,8 @@ float eval_calc(Board board,int move,float param[param_size]){
     LegalMoveList moves(board);
     for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
     out+=param[64]*moves_opponent_sum;
-    out+=param[65]*(board.point[!board.turn]-board.point[board.turn]);//自分と相手の石の数の差
+    //out+=param[65]*(board.point[!board.turn]-board.point[board.turn]);//自分と相手の石の数の差
+    out+=param[65]*(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);//すでに置かれている石のうちの自分の石の割合
     return out;
 }
 

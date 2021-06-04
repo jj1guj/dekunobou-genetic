@@ -1,8 +1,10 @@
 #include"play.hpp"
 #include"experiment.hpp"
 #include<fstream>
+#include<istream>
 #include<vector>
 #include<omp.h>
+#include<sstream>
 #define N 1024
 using std::swap;
 
@@ -28,6 +30,7 @@ void init_param(float params[param_size]){
     }
 }
 
+//対局用の評価関数の読み込み
 int load_eval(std::string filename,float param[param_size]){
     std::ifstream inputs(filename);
     std::string s;
@@ -39,6 +42,28 @@ int load_eval(std::string filename,float param[param_size]){
     while(getline(inputs,s)){
         param[i]=std::stof(s);
         std::cout<<param[i]<<std::endl;
+        ++i;
+    }
+    return 0;
+}
+
+//遺伝的アルゴリズムで使用したパラメータすべてをCSVファイルから読み込む
+int load_params(std::string filename,float params[N][param_size]){
+    std::ifstream inputs(filename);
+    std::string s;
+    int i=0,j;
+    if(inputs.fail()){
+        std::cout<<"Failed to open file\n";
+        return -1;
+    }
+    while(getline(inputs,s)){
+        std::stringstream ss{s};
+        std::string buf;
+        j=0;
+        while(std::getline(ss,buf,',')){
+            params[i][j]=std::stof(buf);
+            ++j;
+        }
         ++i;
     }
     return 0;

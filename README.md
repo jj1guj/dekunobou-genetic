@@ -29,3 +29,5 @@ numpy, matplotlibが必要です.
 python eval_visualize.py
 ```
 これで.pngファイルが出力されます.
+# バグ報告
+バグ等ありましたらissueまでお願いします.

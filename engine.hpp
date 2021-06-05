@@ -1,5 +1,9 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
+//minimaxで末端ノードのときに出力する値
+#define win_out 30000//先手側が勝ったときの評価値
+#define lose_out -30000//先手側が負けたときの評価値
+#define draw_out 100//引き分けのときの評価値
 
 /**********paramについて************/
 /**********
@@ -22,13 +26,50 @@ float eval_calc(Board board,int move,float param[param_size]){
     return out;
 }
 
-void minimax(Board board,float param[param_size],int depth){
-    float eval_max=-inf;
-    int BestMoves[64];
-    int bestmoves_num=0;
+//評価値を出力する
+float minimax(Board board,int move,float param[param_size],int depth){
+    if(depth<=0)return eval_calc(board,move,param);
+
+    //1手すすめる
+    board.push(move);
+
     //ノードの展開
     LegalMoveList moves(board);
-    
+    if(moves.size()==0){
+        board.push(-1);
+        LegalMoveList moves2(board);
+
+        //末端ノードまできた
+        if(moves2.size()==0){
+            if(board.point[0]>board.point[1])return win_out;
+            if(board.point[0]<board.point[1])return lose_out;
+            else return draw_out;
+        }
+        moves=moves2;
+    }
+
+    //各候補手に対し評価値を算出
+    float eval_ref;
+    int BestMoves[64];
+    int bestmoves_num;
+    float eval=-inf;
+    for(int i=0; i<moves.size();++i){
+        eval_ref=eval_calc(board,moves[i],param);
+        if(eval_ref>eval){
+            bestmoves_num=0;
+            BestMoves[bestmoves_num]=moves[i];
+            ++bestmoves_num;
+            eval=eval_ref;
+        }else if(eval_ref==eval){
+            BestMoves[bestmoves_num]=moves[i];
+            ++bestmoves_num;
+        }
+    }
+
+    //最善の候補手に対し1手深く探索する
+    eval=-inf;
+    for(int i=0;i<bestmoves_num;++i)eval=std::max(eval,minimax(board,BestMoves[i],param,depth-1));
+    return eval;
 }
 
 int go(Board board,float param[param_size]){
@@ -46,7 +87,10 @@ int go(Board board,float param[param_size]){
 
     //現在の評価値を算出
     for(int i=0;i<moves.size();i++){
-        eval_ref=eval_calc(board,moves[i],param);
+        //eval_ref=eval_calc(board,moves[i],param);
+
+        //先読みしてみる
+        eval_ref=minimax(board,moves[i],param,3);
 
         if(eval_ref>eval){
             bestmoves_num=0;

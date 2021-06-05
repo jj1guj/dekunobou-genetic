@@ -134,6 +134,21 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     memcpy(params[cur2],p2,memsize);
 }
 
+//盤面に対し線対称な点との平均を取る
+void averaging(float dst[param_size],float src[param_size]){
+    memcpy(dst,src,memsize);
+    for(int i=0;i<64;++i){
+        dst[i]=src[i];
+        dst[i]+=src[i%8*8+i/8];
+        dst[i]+=src[i/8*8+abs(i%8-7)];
+        dst[i]+=src[i/8+abs(i%8-7)*8];
+        dst[i]+=src[abs(i/8-7)*8+i%8];
+        dst[i]+=src[abs(i/8-7)+i%8*8];
+        dst[i]+=src[abs(i/8-7)*8+abs(i%8-7)];
+        dst[i]+=src[abs(i/8-7)+abs(i%8-7)*8];
+        dst[i]/=8;
+    }
+}
 int main(int argc,char** argv){
     int threads=0;
     if(argc>1)threads=atoi(argv[1]);

@@ -3,7 +3,7 @@
 //minimaxで末端ノードのときに出力する値
 #define win_out 30000//先手側が勝ったときの評価値
 #define lose_out -30000//先手側が負けたときの評価値
-#define draw_out 100//引き分けのときの評価値
+#define draw_out 0//引き分けのときの評価値
 
 /**********paramについて************/
 /**********
@@ -27,7 +27,9 @@ float eval_calc(Board board,int move,float param[param_size]){
 }
 
 //評価値を出力する
-float minimax(Board board,int move,float param[param_size],int depth){
+float minimax(Board board,bool p_turn,int move,float param[param_size],int depth){
+    std::cout<<depth<<": "<<board.point[0]<<" "<<board.point[1]<<" "<<board.turn<<"\n";
+    //disp(board);
     if(depth<=0)return eval_calc(board,move,param);
 
     //1手すすめる
@@ -41,9 +43,17 @@ float minimax(Board board,int move,float param[param_size],int depth){
 
         //末端ノードまできた
         if(moves2.size()==0){
-            if(board.point[0]>board.point[1])return win_out;
-            if(board.point[0]<board.point[1])return lose_out;
-            else return draw_out;
+            //disp(board);
+            if(board.point[0]>board.point[1]){
+                //エンジン側が後手番
+                if(p_turn)return lose_out;
+                return win_out;
+            }
+            if(board.point[0]<board.point[1]){
+                //エンジン側が後手番
+                if(p_turn)return win_out;
+                return lose_out;
+            }else return draw_out;
         }
         moves=moves2;
     }
@@ -55,6 +65,7 @@ float minimax(Board board,int move,float param[param_size],int depth){
     float eval=-inf;
     for(int i=0; i<moves.size();++i){
         eval_ref=eval_calc(board,moves[i],param);
+        std::cout<<moves[i]<<", "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];
@@ -65,10 +76,11 @@ float minimax(Board board,int move,float param[param_size],int depth){
             ++bestmoves_num;
         }
     }
+    std::cout<<"\n";
 
     //最善の候補手に対し1手深く探索する
-    eval=-inf;
-    for(int i=0;i<bestmoves_num;++i)eval=std::max(eval,minimax(board,BestMoves[i],param,depth-1));
+    eval=inf;
+    for(int i=0;i<bestmoves_num;++i)eval=std::min(eval,minimax(board,p_turn,BestMoves[i],param,depth-1));
     return eval;
 }
 
@@ -90,7 +102,8 @@ int go(Board board,float param[param_size]){
         //eval_ref=eval_calc(board,moves[i],param);
 
         //先読みしてみる
-        eval_ref=minimax(board,moves[i],param,3);
+        eval_ref=minimax(board,board.turn,moves[i],param,40);
+        std::cout<<i<<","<<moves[i]<<": "<<eval_ref<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;
@@ -103,6 +116,6 @@ int go(Board board,float param[param_size]){
         }
     }
     //for debug
-    //std::cout<<"eval: "<<eval<<std::endl;
+    std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

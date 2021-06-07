@@ -25,12 +25,15 @@ float eval_calc(Board board,int move,float param[param_size]){
     float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
     //point_ratio=2*point_ratio-1;//-1~1の範囲を取るようにする
     out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
+
+    //エンジン側の手番じゃなければ符号を反転させる
+    if(board.turn==turn_engine)out*=-1.0;
     return out;
 }
 
 //minimax法による先読み
 //末端ノード以外は探索前に1手進めてるので自分の手番のつもりで呼び出すと最初は相手の手番になっている
-float minimax(Board board,bool p_turn,int move,float param[param_size],int depth){
+float minimax(Board board,int move,float param[param_size],int depth){
     //末端ノードまできた
     if(depth<=0){
         std::cout<<"depth "<<depth<<", eval: "<<eval_calc(board,move,param)<<std::endl;
@@ -51,12 +54,12 @@ float minimax(Board board,bool p_turn,int move,float param[param_size],int depth
             //disp(board);
             if(board.point[0]>board.point[1]){
                 //エンジン側が後手番
-                if(p_turn)return lose_out;
+                if(turn_engine)return lose_out;
                 return win_out;
             }
             if(board.point[0]<board.point[1]){
                 //エンジン側が後手番
-                if(p_turn)return win_out;
+                if(turn_engine)return win_out;
                 return lose_out;
             }else return draw_out;
         }
@@ -69,17 +72,17 @@ float minimax(Board board,bool p_turn,int move,float param[param_size],int depth
     int bestmoves_num;
     float eval;
     Board board_ref;
-    if(board.turn==p_turn)eval=inf;//相手の手番のときは評価値の最小値を求める
-    else eval=-inf;//自分の手番のときは評価値の最大値を求める
+    if(board.turn==turn_engine)eval=-inf;//相手の手番のときは評価値の最小値を求める
+    else eval=inf;//自分の手番のときは評価値の最大値を求める
 
     //各候補手について末端ノードの評価値を見ていく
     for(int i=0; i<moves.size();++i){
-        if(board.turn==p_turn){
+        if(board.turn==turn_engine){
             //相手の手番のときは評価値の最小値を求める
-            eval=std::min(eval,minimax(board,p_turn,moves[i],param,depth-1));
+            eval=std::max(eval,minimax(board,moves[i],param,depth-1));
         }else{
             //自分の手番のときは評価値の最大値を求める
-            eval=std::max(eval,minimax(board,p_turn,moves[i],param,depth-1));
+            eval=std::min(eval,minimax(board,moves[i],param,depth-1));
         }
     }
     std::cout<<"depth "<<depth<<", eval: "<<eval<<std::endl;
@@ -104,7 +107,7 @@ int go(Board board,float param[param_size]){
         //eval_ref=eval_calc(board,moves[i],param);
 
         //先読みしてみる
-        eval_ref=minimax(board,board.turn,moves[i],param,2);
+        eval_ref=minimax(board,moves[i],param,2);
         std::cout<<"result "<<i<<","<<moves[i]<<": "<<eval_ref<<std::endl<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

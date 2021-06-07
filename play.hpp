@@ -33,7 +33,6 @@ int play_engine_human(float param[param_size]){
     Board board;
     std::string turn[2]={"Black", "White"};
     std::string s;
-    bool turn_engine;
     int pass_count=0;
     int move;
 

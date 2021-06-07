@@ -5,6 +5,8 @@
 #define lose_out -30000//先手側が負けたときの評価値
 #define draw_out 0//引き分けのときの評価値
 
+bool turn_p;//エンジン側の手番(応急処置)
+
 /**********paramについて************/
 /**********
  0~63: 着手に対する重み
@@ -27,7 +29,7 @@ float eval_calc(Board board,int move,float param[param_size]){
     out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
 
     //エンジン側の手番じゃなければ符号を反転させる
-    if(board.turn==turn_engine)out*=-1.0;
+    if(board.turn==turn_p)out*=-1.0;
     return out;
 }
 
@@ -54,12 +56,12 @@ float minimax(Board board,int move,float param[param_size],int depth){
             //disp(board);
             if(board.point[0]>board.point[1]){
                 //エンジン側が後手番
-                if(turn_engine)return lose_out;
+                if(turn_p)return lose_out;
                 return win_out;
             }
             if(board.point[0]<board.point[1]){
                 //エンジン側が後手番
-                if(turn_engine)return win_out;
+                if(turn_p)return win_out;
                 return lose_out;
             }else return draw_out;
         }
@@ -72,12 +74,12 @@ float minimax(Board board,int move,float param[param_size],int depth){
     int bestmoves_num;
     float eval;
     Board board_ref;
-    if(board.turn==turn_engine)eval=-inf;//相手の手番のときは評価値の最小値を求める
+    if(board.turn==turn_p)eval=-inf;//相手の手番のときは評価値の最小値を求める
     else eval=inf;//自分の手番のときは評価値の最大値を求める
 
     //各候補手について末端ノードの評価値を見ていく
     for(int i=0; i<moves.size();++i){
-        if(board.turn==turn_engine){
+        if(board.turn==turn_p){
             //相手の手番のときは評価値の最小値を求める
             eval=std::max(eval,minimax(board,moves[i],param,depth-1));
         }else{
@@ -94,6 +96,8 @@ int go(Board board,float param[param_size]){
     LegalMoveList moves(board);
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[0];
+
+    turn_p=board.turn;//エンジン側の手番を取得
 
     int BestMoves[64];
     int bestmoves_num;

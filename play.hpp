@@ -35,6 +35,7 @@ int play_engine_human(float param[param_size]){
     std::string s;
     int pass_count=0;
     int move;
+    bool turn_engine;
 
     std::cout<<"select your turn[b/w]: ";
     std::cin>>s;

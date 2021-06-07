@@ -22,15 +22,20 @@ float eval_calc(Board board,int move,float param[param_size]){
     for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
     out+=param[64]*moves_opponent_sum;
     //out+=param[65]*(board.point[!board.turn]-board.point[board.turn]);//自分と相手の石の数の差
-    out+=param[65]*(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);//すでに置かれている石のうちの自分の石の割合
+    float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
+    //point_ratio=2*point_ratio-1;//-1~1の範囲を取るようにする
+    out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
     return out;
 }
 
-//評価値を出力する
+//minimax法による先読み
+//末端ノード以外は探索前に1手進めてるので自分の手番のつもりで呼び出すと最初は相手の手番になっている
 float minimax(Board board,bool p_turn,int move,float param[param_size],int depth){
-    std::cout<<depth<<": "<<board.point[0]<<" "<<board.point[1]<<" "<<board.turn<<"\n";
-    //disp(board);
-    if(depth<=0)return eval_calc(board,move,param);
+    //末端ノードまできた
+    if(depth<=0){
+        std::cout<<"depth "<<depth<<", eval: "<<eval_calc(board,move,param)<<std::endl;
+        return eval_calc(board,move,param);
+    }
 
     //1手すすめる
     board.push(move);
@@ -41,7 +46,7 @@ float minimax(Board board,bool p_turn,int move,float param[param_size],int depth
         board.push(-1);
         LegalMoveList moves2(board);
 
-        //末端ノードまできた
+        //終局しちゃった
         if(moves2.size()==0){
             //disp(board);
             if(board.point[0]>board.point[1]){
@@ -62,25 +67,22 @@ float minimax(Board board,bool p_turn,int move,float param[param_size],int depth
     float eval_ref;
     int BestMoves[64];
     int bestmoves_num;
-    float eval=-inf;
+    float eval;
+    Board board_ref;
+    if(board.turn==p_turn)eval=inf;//相手の手番のときは評価値の最小値を求める
+    else eval=-inf;//自分の手番のときは評価値の最大値を求める
+
+    //各候補手について末端ノードの評価値を見ていく
     for(int i=0; i<moves.size();++i){
-        eval_ref=eval_calc(board,moves[i],param);
-        std::cout<<moves[i]<<", "<<eval_ref<<std::endl;
-        if(eval_ref>eval){
-            bestmoves_num=0;
-            BestMoves[bestmoves_num]=moves[i];
-            ++bestmoves_num;
-            eval=eval_ref;
-        }else if(eval_ref==eval){
-            BestMoves[bestmoves_num]=moves[i];
-            ++bestmoves_num;
+        if(board.turn==p_turn){
+            //相手の手番のときは評価値の最小値を求める
+            eval=std::min(eval,minimax(board,p_turn,moves[i],param,depth-1));
+        }else{
+            //自分の手番のときは評価値の最大値を求める
+            eval=std::max(eval,minimax(board,p_turn,moves[i],param,depth-1));
         }
     }
-    std::cout<<"\n";
-
-    //最善の候補手に対し1手深く探索する
-    eval=inf;
-    for(int i=0;i<bestmoves_num;++i)eval=std::min(eval,minimax(board,p_turn,BestMoves[i],param,depth-1));
+    std::cout<<"depth "<<depth<<", eval: "<<eval<<std::endl;
     return eval;
 }
 
@@ -102,9 +104,8 @@ int go(Board board,float param[param_size]){
         //eval_ref=eval_calc(board,moves[i],param);
 
         //先読みしてみる
-        eval_ref=minimax(board,board.turn,moves[i],param,40);
-        std::cout<<i<<","<<moves[i]<<": "<<eval_ref<<std::endl;
-
+        eval_ref=minimax(board,board.turn,moves[i],param,2);
+        std::cout<<"result "<<i<<","<<moves[i]<<": "<<eval_ref<<std::endl<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];
@@ -116,6 +117,6 @@ int go(Board board,float param[param_size]){
         }
     }
     //for debug
-    std::cout<<"eval: "<<eval<<std::endl;
+    //std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

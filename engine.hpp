@@ -29,7 +29,7 @@ float eval_calc(Board board,int move,float param[param_size]){
     out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
 
     //エンジン側の手番じゃなければ符号を反転させる
-    if(board.turn==turn_p)out*=-1.0;
+    //if(board.turn==turn_p)out*=-1.0;
     return out;
 }
 
@@ -108,12 +108,13 @@ int go(Board board,float param[param_size]){
     //現在の評価値を算出
     Board board_ref;
     for(int i=0;i<moves.size();i++){
-        eval_ref=eval_calc(board,moves[i],param);
+        //eval_ref=eval_calc(board,moves[i],param);
 
         //先読みしてみる
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=minimax(board_ref,param,5);
+        eval_ref=minimax(board_ref,param,4);
+        std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

@@ -15,7 +15,6 @@ class Board{
     //中盤: 21~40手
     //終盤: 41~60手
     //手数=盤上にある石の個数と定義する(パスは1手と含めない)
-    int scene=0;
 
     Board(){init();}
 
@@ -51,7 +50,6 @@ class Board{
             point[!turn]-=fliped;
         }
         turn=!turn;//手番を反転
-        scene=(point[0]+point[1]-1)/20;
         return 0;
     }
 

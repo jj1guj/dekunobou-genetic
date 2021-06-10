@@ -9,7 +9,7 @@ bool turn_p;//エンジン側の手番(応急処置)
 
 /**********paramについて************/
 /**********
- * n: 序盤・中盤・終盤かを表す(n=0,1,2), board.sceneから取ってくる
+ * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
  * 20n~20n+17: 盤面の重み
  * 20n+18: 相手の置ける場所の重みの合計に掛ける
  * 20n+19: 盤上の石のうち自分の石の占める割合に掛ける
@@ -31,15 +31,16 @@ int ref_table[64]={
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,int move,float param[param_size]){
-    float out=param[20*board.scene+ref_table[move]],moves_opponent_sum=0;
+    int scene=std::max(0,(board.point[0]+board.point[1]-5)/20);
+    float out=param[20*scene+ref_table[move]],moves_opponent_sum=0;
     //1手すすめる
     board.push(move);
     //相手の合法手をカウント
     LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[20*board.scene+ref_table[moves[i]]];
-    out+=param[20*board.scene+18]*moves_opponent_sum;
+    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[20*scene+ref_table[moves[i]]];
+    out+=param[20*scene+18]*moves_opponent_sum;
     float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
-    out+=param[20*board.scene+19]*point_ratio;//すでに置かれている石のうちの自分の石の割合
+    out+=param[20*scene+19]*point_ratio;//すでに置かれている石のうちの自分の石の割合
 
     //エンジン側の手番じゃなければ符号を反転させる
     //if(board.turn==turn_p)out*=-1.0;

@@ -180,7 +180,7 @@ int main(int argc,char** argv){
     match_times=50;//対局回数
     match_times/=2;
     alpha=1e-2;//突然変異を起こす確率
-    timelimit=72*3600;//単位は秒
+    timelimit=10*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     itr=0;
 

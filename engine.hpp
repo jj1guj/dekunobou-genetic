@@ -9,24 +9,37 @@ bool turn_p;//エンジン側の手番(応急処置)
 
 /**********paramについて************/
 /**********
- 0~63: 着手に対する重み
- 64: 置ける場所の数に対する重み
- 65: 多分確定石(近似値)に対する重み
+ * n: 序盤・中盤・終盤かを表す(n=0,1,2), board.sceneから取ってくる
+ * 20n~20n+17: 盤面の重み
+ * 20n+18: 相手の置ける場所の重みの合計に掛ける
+ * 20n+19: 盤上の石のうち自分の石の占める割合に掛ける
 ***********/
+
+//対称移動を考慮したパラメータと盤上のインデックスの対応表
+//なんか式で書けそうな気もするけどこれが多分手っ取り早い
+//最初からおいてあるところは20にする
+int ref_table[64]={
+     0, 1, 2, 3, 4, 5, 6, 7,
+     1, 8, 9,10,11,12,13, 6,
+     2, 9,14,15,16,17,12, 5,
+     3,10,15,20,20,16,11, 4,
+     4,11,16,20,20,15,10, 3,
+     5,12,17,16,15,14, 9, 2,
+     6,13,12,11,10, 9, 8, 1,
+     7, 6, 5, 4, 3, 2, 1, 0
+};
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,int move,float param[param_size]){
-    float out=param[move],moves_opponent_sum=0;
+    float out=param[20*board.scene+ref_table[move]],moves_opponent_sum=0;
     //1手すすめる
     board.push(move);
     //相手の合法手をカウント
     LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
-    out+=param[64]*moves_opponent_sum;
-    //out+=param[65]*(board.point[!board.turn]-board.point[board.turn]);//自分と相手の石の数の差
+    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[20*board.scene+ref_table[moves[i]]];
+    out+=param[20*board.scene+18]*moves_opponent_sum;
     float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
-    //point_ratio=2*point_ratio-1;//-1~1の範囲を取るようにする
-    out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
+    out+=param[20*board.scene+19]*point_ratio;//すでに置かれている石のうちの自分の石の割合
 
     //エンジン側の手番じゃなければ符号を反転させる
     //if(board.turn==turn_p)out*=-1.0;
@@ -108,13 +121,13 @@ int go(Board board,float param[param_size]){
     //現在の評価値を算出
     Board board_ref;
     for(int i=0;i<moves.size();i++){
-        //eval_ref=eval_calc(board,moves[i],param);
+        eval_ref=eval_calc(board,moves[i],param);
 
         //先読みしてみる
-        board_ref=board;
-        board_ref.push(moves[i]);
-        eval_ref=minimax(board_ref,param,4);
-        std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
+        //board_ref=board;
+        //board_ref.push(moves[i]);
+        //eval_ref=minimax(board_ref,param,4);
+        //std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

@@ -4,15 +4,9 @@
 
 bool turn_p;//エンジン側の手番(応急処置)
 
-/**********paramについて************/
-/**********
- 0~63: 着手に対する重み
- 64: 置ける場所の数に対する重み
- 65: 多分確定石(近似値)に対する重み
-***********/
-
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board){
+    //盤上の自石の割合を返す
     return (float)board.point[turn_p]/(board.point[0]+board.point[1]);
 }
 
@@ -84,9 +78,9 @@ int go(Board board){
         board_ref=board;
         board_ref.push(moves[i]);
         //1手読み
-        eval_ref=eval_calc(board_ref);
+        //eval_ref=eval_calc(board_ref);
         //先読みしてみる
-        //eval_ref=minimax(board_ref,4);
+        eval_ref=minimax(board_ref,4);
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

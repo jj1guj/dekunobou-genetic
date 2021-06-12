@@ -3,7 +3,7 @@
 #include"engine.hpp"
 
 #pragma once
-int play_engine_human(float param[param_size]){
+int play_engine_human(){
     Board board;
     std::string turn[2]={"Black", "White"};
     std::string s;

@@ -63,7 +63,7 @@ float minimax(Board board,int depth){
     return eval;
 }
 
-int go(Board board,float param[param_size]){
+int go(Board board){
     float eval=-inf;
     LegalMoveList moves(board);
     //1手だけのときはその手を返す

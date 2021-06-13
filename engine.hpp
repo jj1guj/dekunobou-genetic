@@ -80,7 +80,7 @@ int go(Board board){
         //1手読み
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
-        eval_ref=minimax(board_ref,4);
+        eval_ref=minimax(board_ref,6);
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

@@ -27,7 +27,7 @@ int play_engine_human(){
         }
         pass_count=0;
         if(board.turn==turn_engine){
-            disp(board);
+            disp_teban(board);
             board.push(go(board));
         }else{
             disp_teban(board);

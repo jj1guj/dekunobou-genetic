@@ -92,13 +92,11 @@ int go(Board board,float param[param_size]){
     //現在の評価値を算出
     Board board_ref;
     for(int i=0;i<moves.size();i++){
-        //eval_ref=eval_calc(board,moves[i],param);
-
         //先読みしてみる
+        //1手読みしたいなら深さを0に指定する
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=minimax(board_ref,param,6);
-        //std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
+        eval_ref=minimax(board_ref,param,0);
         std::cout<<i+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
@@ -111,6 +109,5 @@ int go(Board board,float param[param_size]){
         }
     }
     //for debug
-    //std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

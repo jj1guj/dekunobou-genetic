@@ -156,10 +156,10 @@ int main(int argc,char** argv){
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
-    //load_eval("eval.txt",params[0]);
+    load_eval("eval_41220_averaging.txt",params[0]);
     //rating_test(params[0],params[1]);
     //人との対決用
-    //play_engine_human(params[0]);
+    play_engine_human(params[0]);
 
     //for debug
     /*std::chrono::system_clock::time_point start,end;
@@ -170,7 +170,7 @@ int main(int argc,char** argv){
     std::cout<<elapsed<<" "<<elapsed/100<<std::endl;*/
 
     //最終的に出力する評価関数のファイル名
-    std::string eval_output_filename="eval.txt";
+    /*std::string eval_output_filename="eval.txt";
 
     M=100;//1世代での交叉回数
     match_genetic=30;//評価時の対局数
@@ -294,5 +294,5 @@ int main(int argc,char** argv){
     //output to file
     std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
-    eval_output.close();
+    eval_output.close();*/
 }

@@ -23,13 +23,8 @@ float eval_calc(Board board,int move,float param[param_size]){
     LegalMoveList moves(board);
     for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
     out+=param[64]*moves_opponent_sum;
-    //out+=param[65]*(board.point[!board.turn]-board.point[board.turn]);//自分と相手の石の数の差
     float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
-    //point_ratio=2*point_ratio-1;//-1~1の範囲を取るようにする
     out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
-
-    //エンジン側の手番じゃなければ符号を反転させる
-    //if(board.turn==turn_p)out*=-1.0;
     return out;
 }
 
@@ -43,17 +38,8 @@ float minimax(Board board,float param[param_size],int depth){
         LegalMoveList moves2(board);
         //終局
         if(moves2.size()==0){
-            if(!turn_p){
-                //エンジン側が先手のとき
-                if(board.point[0]>board.point[1])return win_out;
-                else if(board.point[0]<board.point[1])return lose_out;
-                else return draw_out;
-            }else{
-                //エンジン側が後手のとき
-                if(board.point[0]>board.point[1])return lose_out;
-                else if(board.point[0]<board.point[1])return win_out;
-                else return draw_out;
-            }
+            //最終的な石の枚数を出力する
+            return board.point[turn_p];
         }
         moves=moves2;
     }
@@ -70,7 +56,6 @@ float minimax(Board board,float param[param_size],int depth){
                 eval=std::min(eval,eval_calc(board,moves[i],param));
             }
         }
-        //std::cout<<"depth:"<<depth<<", eval:"<<eval<<std::endl;
         return eval;
     }
 
@@ -86,7 +71,6 @@ float minimax(Board board,float param[param_size],int depth){
             eval=std::min(eval,minimax(board_ref,param,depth-1));
         }
     }
-    //std::cout<<"depth:"<<depth<<", eval:"<<eval<<std::endl;
     return eval;
 }
 
@@ -113,7 +97,7 @@ int go(Board board,float param[param_size]){
         //先読みしてみる
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=minimax(board_ref,param,4);
+        eval_ref=minimax(board_ref,param,6);
         std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

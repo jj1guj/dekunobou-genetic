@@ -53,7 +53,8 @@ int play_engine_human(float param[param_size]){
         }
         pass_count=0;
         if(board.turn==turn_engine){
-            disp(board);
+            //disp(board);
+            disp_teban(board);
             board.push(go(board,param));
         }else{
             disp_teban(board);

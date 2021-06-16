@@ -98,7 +98,8 @@ int go(Board board,float param[param_size]){
         board_ref=board;
         board_ref.push(moves[i]);
         eval_ref=minimax(board_ref,param,6);
-        std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
+        //std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
+        std::cout<<i+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

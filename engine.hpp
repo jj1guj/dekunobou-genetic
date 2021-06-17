@@ -1,7 +1,7 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
 //minimaxで末端ノードのときに出力する値
-
+ll nodes;
 bool turn_p;//エンジン側の手番(応急処置)
 float a,b;
 
@@ -21,6 +21,7 @@ float minimax(Board board,int depth){
         LegalMoveList moves2(board);
         //終局
         if(moves2.size()==0){
+            ++nodes;
             return eval_calc(board);
         }
         moves=moves2;
@@ -33,6 +34,7 @@ float minimax(Board board,int depth){
     Board board_ref;
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
+            ++nodes;
             board_ref=board;
             board_ref.push(moves[i]);
             if(board.turn==turn_p){
@@ -70,6 +72,7 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         LegalMoveList moves2(board);
         //終局
         if(moves2.size()==0){
+            ++nodes;
             return eval_calc(board);
         }
         moves=moves2;
@@ -82,6 +85,7 @@ float alphabeta(Board board,int depth,float alpha,float beta){
     Board board_ref;
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
+            ++nodes;
             board_ref=board;
             board_ref.push(moves[i]);
             if(board.turn==turn_p){
@@ -95,19 +99,38 @@ float alphabeta(Board board,int depth,float alpha,float beta){
     }
 
     //それ以外のとき
+    if(board.turn==turn_p){
+        for(int i=0;i<moves.size();++i){
+            board_ref=board;
+            board_ref.push(moves[i]);
+            
+        }
+    }else{
+        for(int i=0;i<moves.size();++i){
+            board_ref=board;
+            board_ref.push(moves[i]);
+
+        }
+    }
+    float eval_ref;
     for(int i=0;alpha<beta && i<moves.size();++i){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
-        eval=alphabeta(board_ref,depth-1,alpha,beta);
-
-        if(board.turn==turn_p && eval>alpha){
+        eval_ref=alphabeta(board_ref,depth-1,alpha,beta);
+        //とりあえずαカットだけやる
+        if(board.turn==turn_p){
+            eval=std::max(eval_ref,eval);
+        }else{
+            
+        }
+        /*if(board.turn==turn_p && eval>alpha){
             alpha=eval;//βカット
             a=alpha;
         }else if(eval<beta){
             beta=eval;///αカット
             b=beta;
-        }
+        }*/
     }
     if(board.turn==turn_p)return beta;
     else return alpha;
@@ -136,9 +159,14 @@ int go(Board board){
         //1手読み
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
+        nodes=0;
         eval_ref=minimax(board_ref,6);
-        //eval_ref=alphabeta(board_ref,8,-inf,inf);
-        std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
+        std::cout<<nodes<<" ";
+        nodes=0;
+        eval_ref=alphabeta(board_ref,6,-inf,inf);
+        std::cout<<nodes<<"\n";
+        //std::cout<<i+1<<": "<<eval_ref<<std::endl;
+        //std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

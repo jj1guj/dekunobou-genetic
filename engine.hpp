@@ -74,6 +74,54 @@ float minimax(Board board,float param[param_size],int depth){
     return eval;
 }
 
+//αβ法による先読み
+float alphabeta(Board board,float param[param_size],int depth,float alpha,float beta){
+    //候補手の展開
+    LegalMoveList moves(board);
+    if(moves.size()==0){
+        //手番を変えて展開
+        board.push(-1);
+        LegalMoveList moves2(board);
+        //終局
+        if(moves2.size()==0){
+            return board.point[turn_p];
+        }
+        moves=moves2;
+    }
+
+    float eval;
+    if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
+    else eval=inf;//相手が手番のときは評価値の最小値を求める
+    //末端ノードのとき
+    Board board_ref;
+    if(depth<=0){
+        for(int i=0;i<moves.size();++i){
+            if(board.turn==turn_p){
+                eval=std::max(eval,eval_calc(board,moves[i],param));
+            }else{
+                eval=std::min(eval,eval_calc(board,moves[i],param));
+            }
+        }
+        return eval;
+    }
+
+    //それ以外のとき
+    for(int i=0;alpha<beta && i<moves.size();++i){
+        //1手打つ
+        board_ref=board;
+        board_ref.push(moves[i]);
+        eval=alphabeta(board_ref,param,depth-1,alpha,beta);
+
+        if(board.turn==turn_p && eval<beta){
+            beta=eval;//βカット
+        }else if(eval>alpha){
+            alpha=eval;//αカット
+        }
+    }
+    if(board.turn==turn_p)return beta;
+    else return alpha;
+}
+
 int go(Board board,float param[param_size]){
     float eval=-inf;
     LegalMoveList moves(board);
@@ -96,7 +144,8 @@ int go(Board board,float param[param_size]){
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=minimax(board_ref,param,0);
+        //eval_ref=minimax(board_ref,param,6);
+        eval_ref=alphabeta(board_ref,param,12,-inf,inf);
         std::cout<<i+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

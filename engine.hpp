@@ -3,6 +3,7 @@
 //minimaxで末端ノードのときに出力する値
 
 bool turn_p;//エンジン側の手番(応急処置)
+float a,b;
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board){
@@ -34,7 +35,7 @@ float minimax(Board board,int depth){
         for(int i=0;i<moves.size();++i){
             board_ref=board;
             board_ref.push(moves[i]);
-            if(board.turn!=turn_p){
+            if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board_ref));
             }else{
                 eval=std::min(eval,eval_calc(board_ref));
@@ -58,6 +59,8 @@ float minimax(Board board,int depth){
 }
 
 //αβ法による先読み
+//α: 評価値の最小値
+//β: 評価値の最大値
 float alphabeta(Board board,int depth,float alpha,float beta){
     //候補手の展開
     LegalMoveList moves(board);
@@ -81,14 +84,13 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         for(int i=0;i<moves.size();++i){
             board_ref=board;
             board_ref.push(moves[i]);
-            
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board_ref));
             }else{
                 eval=std::min(eval,eval_calc(board_ref));
             }
         }
-        //std::cout<<eval<<std::endl;
+        //if(board.turn!=turn_p)std::cout<<"N "<<eval<<std::endl;
         return eval;
     }
 
@@ -99,10 +101,12 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         board_ref.push(moves[i]);
         eval=alphabeta(board_ref,depth-1,alpha,beta);
 
-        if(board.turn==turn_p && eval<beta){
-            beta=eval;//βカット
-        }else if(eval>alpha){
-            alpha=eval;///αカット
+        if(board.turn==turn_p && eval>alpha){
+            alpha=eval;//βカット
+            a=alpha;
+        }else if(eval<beta){
+            beta=eval;///αカット
+            b=beta;
         }
     }
     if(board.turn==turn_p)return beta;
@@ -132,9 +136,9 @@ int go(Board board){
         //1手読み
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
-        //eval_ref=minimax(board_ref,6);
-        eval_ref=alphabeta(board_ref,8,-inf,inf);
-        std::cout<<i+1<<": "<<eval_ref<<std::endl;
+        eval_ref=minimax(board_ref,6);
+        //eval_ref=alphabeta(board_ref,8,-inf,inf);
+        std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

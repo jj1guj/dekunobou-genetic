@@ -55,12 +55,12 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
         for(int i=0;i<moves.size();++i){
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board,moves[i],param));
-                if(eval>beta)break;
+                if(eval>=beta)break;
                 alpha=std::max(alpha,eval);
                 a=alpha;
             }else{
                 eval=std::min(eval,eval_calc(board,moves[i],param));
-                if(eval<alpha)break;
+                if(eval<=alpha)break;
                 beta=std::min(beta,eval);
                 b=beta;
             }
@@ -74,12 +74,12 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
         board_ref.push(moves[i]);
         if(board.turn==turn_p){
             eval=std::max(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
-            if(eval>beta)break;
+            if(eval>=beta)break;
             alpha=std::max(alpha,eval);
             a=alpha;
         }else{
             eval=std::min(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
-            if(eval<alpha)break;
+            if(eval<=alpha)break;
             beta=std::min(beta,eval);
             b=beta;
         }
@@ -140,7 +140,7 @@ int go(Board board,float param[param_size]){
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
         board_ref.push(moves[priority[i]]);
-        eval_ref=alphabeta(board_ref,param,8,a,b);
+        eval_ref=alphabeta(board_ref,param,6,-inf,inf);
         std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

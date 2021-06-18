@@ -90,8 +90,12 @@ float alphabeta(Board board,int depth,float alpha,float beta){
             board_ref.push(moves[i]);
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board_ref));
+                if(eval>=beta)break;
+                alpha=std::max(alpha,eval);
             }else{
                 eval=std::min(eval,eval_calc(board_ref));
+                if(eval<=alpha)break;
+                beta=std::min(beta,eval);
             }
         }
         //if(board.turn!=turn_p)std::cout<<"N "<<eval<<std::endl;
@@ -140,12 +144,12 @@ int go(Board board){
         //1手読み
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
-        //nodes=0;
-        //eval_ref=minimax(board_ref,6);
-        //std::cout<<nodes/1000<<"k ";
-        //nodes=0;
+        nodes=0;
+        eval_ref=minimax(board_ref,6);
+        std::cout<<nodes/1000<<"k ";
+        nodes=0;
         eval_ref=alphabeta(board_ref,6,-inf,inf);
-        //std::cout<<nodes/1000<<"k\n";
+        std::cout<<nodes/1000<<"k\n";
         //std::cout<<i+1<<": "<<eval_ref<<std::endl;
         //std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){

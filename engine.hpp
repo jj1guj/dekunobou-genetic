@@ -81,8 +81,9 @@ float alphabeta(Board board,int depth,float alpha,float beta){
     float eval;
     if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
     else eval=inf;//相手が手番のときは評価値の最小値を求める
-    //末端ノードのとき
     Board board_ref;
+
+    //末端ノードのとき
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
             ++nodes;
@@ -90,34 +91,41 @@ float alphabeta(Board board,int depth,float alpha,float beta){
             board_ref.push(moves[i]);
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board_ref));
-                if(eval>=beta)break;
+                if(eval>beta)break;
                 alpha=std::max(alpha,eval);
+                a=alpha;
             }else{
                 eval=std::min(eval,eval_calc(board_ref));
-                if(eval<=alpha)break;
+                if(eval<alpha)break;
                 beta=std::min(beta,eval);
+                b=beta;
             }
         }
+        if(eval>100)std::cout<<depth<<" "<<alpha<<" "<<beta<<std::endl;
         //if(board.turn!=turn_p)std::cout<<"N "<<eval<<std::endl;
         return eval;
     }
     
-    for(int i=0;alpha<beta && i<moves.size();++i){
+    float eval_ref;
+    for(int i=0;i<moves.size();++i){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
+        eval_ref=alphabeta(board_ref,depth-1,alpha,beta);
         if(board.turn==turn_p){
-            eval=std::max(eval,alphabeta(board_ref,depth-1,alpha,beta));
-            if(eval>=beta)break;
+            eval=std::max(eval,eval_ref);
+            if(eval>beta)break;
             alpha=std::max(alpha,eval);
             a=alpha;
         }else{
-            eval=std::min(eval,alphabeta(board_ref,depth-1,alpha,beta));
-            if(eval<=alpha)break;
+            eval=std::min(eval,eval_ref);
+            if(eval<alpha)break;
             beta=std::min(beta,eval);
             b=beta;
         }
+        //if(eval>100)std::cout<<depth<<" "<<alpha<<" "<<beta<<std::endl;
     }
+    //if(eval>100)std::cout<<depth<<" "<<moves.size()<<" "<<alpha<<" "<<beta<<std::endl;
     return eval;
 }
 
@@ -138,6 +146,9 @@ int go(Board board){
 
     //現在の評価値を算出
     Board board_ref;
+    //float alpha=-inf,beta=inf;
+    a=-inf;b=inf;
+    float eval_alphabeta;
     for(int i=0;i<moves.size();i++){
         board_ref=board;
         board_ref.push(moves[i]);
@@ -146,12 +157,13 @@ int go(Board board){
         //先読みしてみる
         nodes=0;
         eval_ref=minimax(board_ref,6);
-        std::cout<<nodes/1000<<"k ";
-        nodes=0;
-        eval_ref=alphabeta(board_ref,6,-inf,inf);
-        std::cout<<nodes/1000<<"k\n";
+        //std::cout<<nodes/1000<<"k ";
+        //nodes=0;
+        //eval_ref=alphabeta(board_ref,6,a,b);
+        //std::cout<<nodes/1000<<"k\n";
         //std::cout<<i+1<<": "<<eval_ref<<std::endl;
-        //std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
+        eval_alphabeta=alphabeta(board_ref,6,a,b);
+        std::cout<<i+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

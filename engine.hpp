@@ -6,6 +6,7 @@
 #define draw_out 0//引き分けのときの評価値
 
 bool turn_p;//エンジン側の手番(応急処置)
+float a,b;
 
 /**********paramについて************/
 /**********
@@ -54,29 +55,33 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
         for(int i=0;i<moves.size();++i){
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board,moves[i],param));
-                if(eval>=beta)break;
+                if(eval>beta)break;
                 alpha=std::max(alpha,eval);
+                a=alpha;
             }else{
                 eval=std::min(eval,eval_calc(board,moves[i],param));
-                if(eval<=alpha)break;
+                if(eval<alpha)break;
                 beta=std::min(beta,eval);
+                b=beta;
             }
         }
         return eval;
     }
     
-    for(int i=0;alpha<beta && i<moves.size();++i){
+    for(int i=0;i<moves.size();++i){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
         if(board.turn==turn_p){
             eval=std::max(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
-            if(eval>=beta)break;
+            if(eval>beta)break;
             alpha=std::max(alpha,eval);
+            a=alpha;
         }else{
             eval=std::min(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
-            if(eval<=alpha)break;
+            if(eval<alpha)break;
             beta=std::min(beta,eval);
+            b=beta;
         }
     }
     return eval;
@@ -99,13 +104,44 @@ int go(Board board,float param[param_size]){
 
     //現在の評価値を算出
     Board board_ref;
+    a=-inf;
+    b=inf;
+
+    //探索の優先順位付け
+    float evals[64];
+    int priority[64];
+    bool selected[64];
+    std::vector<float>evals_sort(moves.size());
+    //1手読みの評価値を算出
+    for(int i=0; i<moves.size();++i){
+        evals[i]=eval_calc(board,moves[i],param);
+        evals_sort[i]=evals[i];
+        selected[i]=false;
+    }
+
+    //評価値の降順にソート
+    std::sort(evals_sort.begin(),evals_sort.end(),std::greater<float>());
+    
+    for(int i=0;i<moves.size();++i){
+        for(int j=0;j<moves.size();++j){
+            if(!selected[j]&&evals_sort[i]==evals[j]){
+                priority[i]=j;
+                selected[j]=true;
+                break;
+            }
+        }
+    }
+    std::cout<<"priority: ";
+    for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
+    std::cout<<std::endl;
+
     for(int i=0;i<moves.size();i++){
         //先読みしてみる
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
-        board_ref.push(moves[i]);
-        eval_ref=alphabeta(board_ref,param,8,-inf,inf);
-        std::cout<<i+1<<": "<<eval_ref<<std::endl;
+        board_ref.push(moves[priority[i]]);
+        eval_ref=alphabeta(board_ref,param,8,a,b);
+        std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

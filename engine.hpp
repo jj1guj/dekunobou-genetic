@@ -97,43 +97,24 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         //if(board.turn!=turn_p)std::cout<<"N "<<eval<<std::endl;
         return eval;
     }
-
-    //それ以外のとき
-    if(board.turn==turn_p){
-        for(int i=0;i<moves.size();++i){
-            board_ref=board;
-            board_ref.push(moves[i]);
-            
-        }
-    }else{
-        for(int i=0;i<moves.size();++i){
-            board_ref=board;
-            board_ref.push(moves[i]);
-
-        }
-    }
-    float eval_ref;
+    
     for(int i=0;alpha<beta && i<moves.size();++i){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=alphabeta(board_ref,depth-1,alpha,beta);
-        //とりあえずαカットだけやる
         if(board.turn==turn_p){
-            eval=std::max(eval_ref,eval);
-        }else{
-            
-        }
-        /*if(board.turn==turn_p && eval>alpha){
-            alpha=eval;//βカット
+            eval=std::max(eval,alphabeta(board_ref,depth-1,alpha,beta));
+            if(eval>=beta)break;
+            alpha=std::max(alpha,eval);
             a=alpha;
-        }else if(eval<beta){
-            beta=eval;///αカット
+        }else{
+            eval=std::min(eval,alphabeta(board_ref,depth-1,alpha,beta));
+            if(eval<=alpha)break;
+            beta=std::min(beta,eval);
             b=beta;
-        }*/
+        }
     }
-    if(board.turn==turn_p)return beta;
-    else return alpha;
+    return eval;
 }
 
 int go(Board board){
@@ -159,12 +140,12 @@ int go(Board board){
         //1手読み
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
-        nodes=0;
-        eval_ref=minimax(board_ref,6);
-        std::cout<<nodes<<" ";
-        nodes=0;
+        //nodes=0;
+        //eval_ref=minimax(board_ref,6);
+        //std::cout<<nodes/1000<<"k ";
+        //nodes=0;
         eval_ref=alphabeta(board_ref,6,-inf,inf);
-        std::cout<<nodes<<"\n";
+        //std::cout<<nodes/1000<<"k\n";
         //std::cout<<i+1<<": "<<eval_ref<<std::endl;
         //std::cout<<i+1<<": "<<eval_ref<<" "<<alphabeta(board_ref,6,-inf,inf)<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){

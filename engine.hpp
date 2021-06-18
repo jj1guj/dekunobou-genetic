@@ -29,6 +29,52 @@ float eval_calc(Board board,int move,float param[param_size]){
     return out;
 }
 
+//minimax法による先読み
+float minimax(Board board,float param[param_size],int depth){
+    //候補手の展開
+    LegalMoveList moves(board);
+    if(moves.size()==0){
+        //手番を変えて展開
+        board.push(-1);
+        LegalMoveList moves2(board);
+        //終局
+        if(moves2.size()==0){
+            //最終的な石の枚数を出力する
+            return board.point[turn_p];
+        }
+        moves=moves2;
+    }
+
+    float eval;
+    if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
+    else eval=inf;//相手が手番のときは評価値の最小値を求める
+    //末端ノードのとき
+    if(depth<=0){
+        for(int i=0;i<moves.size();++i){
+            if(board.turn==turn_p){
+                eval=std::max(eval,eval_calc(board,moves[i],param));
+            }else{
+                eval=std::min(eval,eval_calc(board,moves[i],param));
+            }
+        }
+        return eval;
+    }
+
+    //それ以外のとき
+    Board board_ref;
+    for(int i=0;i<moves.size();++i){
+        //1手打つ
+        board_ref=board;
+        board_ref.push(moves[i]);
+        if(board.turn==turn_p){
+            eval=std::max(eval,minimax(board_ref,param,depth-1));
+        }else{
+            eval=std::min(eval,minimax(board_ref,param,depth-1));
+        }
+    }
+    return eval;
+}
+
 //αβ法による先読み
 //α: 評価値の最小値
 //β: 評価値の最大値
@@ -140,7 +186,8 @@ int go(Board board,float param[param_size]){
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
         board_ref.push(moves[priority[i]]);
-        eval_ref=alphabeta(board_ref,param,6,-inf,inf);
+        eval_ref=minimax(board_ref,param,6);
+        //eval_ref=alphabeta(board_ref,param,6,-inf,inf);
         std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

@@ -236,7 +236,7 @@ int main(int argc,char** argv){
         }
 
         //今の重みをファイルに出力
-        if(itr%100==0){
+        if(itr%10==0){
             std::ofstream test_output(data_path+"/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
                 for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";

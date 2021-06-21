@@ -6,7 +6,7 @@
 #define draw_out 0//引き分けのときの評価値
 
 bool turn_p;//エンジン側の手番(応急処置)
-float a,b;
+ll nodes;//探索ノード数カウント用
 
 /**********paramについて************/
 /**********
@@ -88,6 +88,7 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
         LegalMoveList moves2(board);
         //終局
         if(moves2.size()==0){
+            ++nodes;
             return board.point[turn_p];
         }
         return alphabeta(board,param,depth-1,alpha,beta);
@@ -101,16 +102,15 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
     Board board_ref;
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
+            ++nodes;
             if(board.turn==turn_p){
                 eval=std::max(eval,eval_calc(board,moves[i],param));
                 if(eval>=beta)break;
                 alpha=std::max(alpha,eval);
-                a=alpha;
             }else{
                 eval=std::min(eval,eval_calc(board,moves[i],param));
                 if(eval<=alpha)break;
                 beta=std::min(beta,eval);
-                b=beta;
             }
         }
         return eval;
@@ -124,12 +124,10 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
             eval=std::max(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
             if(eval>=beta)break;
             alpha=std::max(alpha,eval);
-            a=alpha;
         }else{
             eval=std::min(eval,alphabeta(board_ref,param,depth-1,alpha,beta));
             if(eval<=alpha)break;
             beta=std::min(beta,eval);
-            b=beta;
         }
     }
     return eval;
@@ -152,8 +150,6 @@ int go(Board board,float param[param_size]){
 
     //現在の評価値を算出
     Board board_ref;
-    a=-inf;
-    b=inf;
 
     //探索の優先順位付け
     //たぶん今バグってるのでやらない
@@ -194,11 +190,12 @@ int go(Board board,float param[param_size]){
         board_ref.push(moves[i]);
         //eval_ref=minimax(board_ref,param,6);
         
+        nodes=0;
         //終盤20手で完全読み
-        if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
-        else eval_ref=alphabeta(board_ref,param,6,-inf,inf);
+        if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,60,eval,inf);
+        else eval_ref=alphabeta(board_ref,param,6,eval,inf);
         //std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
-        std::cout<<i+1<<": "<<eval_ref<<std::endl;
+        std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

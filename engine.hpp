@@ -195,7 +195,7 @@ int go(Board board,float param[param_size]){
         //eval_ref=minimax(board_ref,param,6);
         
         //終盤20手で完全読み
-        if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,63-board.point[0]-board.point[1],-inf,inf);
+        if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
         else eval_ref=alphabeta(board_ref,param,6,-inf,inf);
         //std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
         std::cout<<i+1<<": "<<eval_ref<<std::endl;

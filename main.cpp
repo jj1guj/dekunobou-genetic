@@ -24,7 +24,7 @@ bool cur_used[N];
 std::random_device rnd;
 
 void init_param(float params[param_size]){
-    std::random_device rnd;
+    //std::random_device rnd;
     for(int i=0;i<param_size;++i){
         params[i]=2.0*(float)rnd()/0xffffffff-1.0;
     }

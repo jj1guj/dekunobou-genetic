@@ -157,10 +157,15 @@ int go(Board board,float param[param_size]){
     int priority[64];
     bool selected[64];
     std::vector<float>evals_sort(moves.size());
-    //1手読みの評価値を算出
+
+    //5手読みの評価値を算出
     for(int i=0; i<moves.size();++i){
-        evals[i]=eval_calc(board,moves[i],param);
+        board_ref=board;
+        board_ref.push(moves[i]);
+        //evals[i]=eval_calc(board,moves[i],param);
+        evals[i]=alphabeta(board_ref,param,4,eval,inf);
         evals_sort[i]=evals[i];
+        eval=std::max(evals[i],eval);
         selected[i]=false;
     }
 
@@ -181,21 +186,19 @@ int go(Board board,float param[param_size]){
     std::cout<<std::endl;
 
     if(board.point[0]+board.point[1]>=46)std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
-
+    eval=-inf;
     for(int i=0;i<moves.size();i++){
         //先読みしてみる
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
         board_ref.push(moves[priority[i]]);
-        //board_ref.push(moves[i]);
-        //eval_ref=minimax(board_ref,param,6);
         
         nodes=0;
         //終盤20手で完全読み
         if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,60,eval,inf);
         else eval_ref=alphabeta(board_ref,param,10,eval,inf);
         std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
-        //std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[priority[i]];

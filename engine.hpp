@@ -184,6 +184,8 @@ int go(Board board,float param[param_size]){
     for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
     std::cout<<std::endl;*/
 
+    if(board.point[0]+board.point[1]>=40)std::cout<<"depth: "<<63-board.point[0]-board.point[1];
+
     for(int i=0;i<moves.size();i++){
         //先読みしてみる
         //1手読みしたいなら深さを0に指定する
@@ -191,7 +193,10 @@ int go(Board board,float param[param_size]){
         //board_ref.push(moves[priority[i]]);
         board_ref.push(moves[i]);
         //eval_ref=minimax(board_ref,param,6);
-        eval_ref=alphabeta(board_ref,param,6,-inf,inf);
+        
+        //終盤20手で完全読み
+        if(board.point[0]+board.point[1]>=40)eval_ref=alphabeta(board_ref,param,63-board.point[0]-board.point[1],-inf,inf);
+        else eval_ref=alphabeta(board_ref,param,6,-inf,inf);
         //std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
         std::cout<<i+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){

@@ -10,6 +10,8 @@ import os
 import tqdm
 
 file_path="build/data/"
+file_list=os.listdir(file_path)
+file_list=[i for i in file_list if ".csv" in i]
 file_num=len(os.listdir(file_path))
 
 #動画の設定
@@ -18,9 +20,11 @@ mov_w=640
 fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
 video=cv2.VideoWriter("result.mp4",fourcc,5.0,(mov_w,mov_h),True)
 
-#刻み幅を指定
-L=[i for i in range(0,100*file_num-99,100)]
-L[0]=1
+#世代を取得
+#ファイル名は必ずhoge_[世代].csvになっている必要がある
+
+L=[int(i.split("_")[1].split(".")[0]) for i in file_list]
+L.sort()
 print(L)
 
 plt.figure()
@@ -36,7 +40,7 @@ for j in tqdm.tqdm(range(len(L))):
 
     #ヒートマップの描画
     plt.clf()
-    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.05)
+    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.025)
     plt.colorbar()
     plt.title("Generation: {}".format(i))
     plt.savefig("out/out_{}.png".format(i))

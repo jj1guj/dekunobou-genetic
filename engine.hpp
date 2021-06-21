@@ -8,7 +8,8 @@ float a,b;
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board){
     //盤上の自石の割合を返す
-    return (float)board.point[turn_p]/(board.point[0]+board.point[1]);
+    //return (float)board.point[turn_p]/(board.point[0]+board.point[1]);
+    return board.point[turn_p];
 }
 
 //minimax法による先読み
@@ -77,7 +78,8 @@ float alphabeta(Board board,int depth,float alpha,float beta){
             ++nodes;
             return eval_calc(board);
         }
-        moves=moves2;
+        return alphabeta(board,depth-1,alpha,beta);
+        //moves=moves2;
     }
 
     float eval;
@@ -151,6 +153,9 @@ int go(Board board){
     //float alpha=-inf,beta=inf;
     a=-inf;b=inf;
     float eval_alphabeta;
+    if(board.point[0]+board.point[1]>=44){
+        std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
+    }
     for(int i=0;i<moves.size();i++){
         board_ref=board;
         board_ref.push(moves[i]);
@@ -158,13 +163,15 @@ int go(Board board){
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
         nodes=0;
-        eval_ref=minimax(board_ref,4);
+        //eval_ref=minimax(board_ref,4);
         //std::cout<<nodes/1000<<"k ";
         //nodes=0;
         //eval_ref=alphabeta(board_ref,6,a,b);
+        if(board.point[0]+board.point[1]>=44){
+            eval_ref=alphabeta(board_ref,63-board.point[0]-board.point[1],a,b);
+        }else eval_ref=alphabeta(board_ref,8,a,b);
         //std::cout<<nodes/1000<<"k\n";
         std::cout<<i+1<<": "<<eval_ref<<std::endl;
-        //eval_alphabeta=alphabeta(board_ref,6,a,b);
         //std::cout<<i+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;

@@ -153,7 +153,7 @@ int go(Board board,float param[param_size]){
 
     //探索の優先順位付け
     //たぶん今バグってるのでやらない
-    /*float evals[64];
+    float evals[64];
     int priority[64];
     bool selected[64];
     std::vector<float>evals_sort(moves.size());
@@ -178,7 +178,7 @@ int go(Board board,float param[param_size]){
     }
     std::cout<<"priority: ";
     for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
-    std::cout<<std::endl;*/
+    std::cout<<std::endl;
 
     if(board.point[0]+board.point[1]>=46)std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
 
@@ -186,23 +186,23 @@ int go(Board board,float param[param_size]){
         //先読みしてみる
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
-        //board_ref.push(moves[priority[i]]);
-        board_ref.push(moves[i]);
+        board_ref.push(moves[priority[i]]);
+        //board_ref.push(moves[i]);
         //eval_ref=minimax(board_ref,param,6);
         
         nodes=0;
         //終盤20手で完全読み
         if(board.point[0]+board.point[1]>=46)eval_ref=alphabeta(board_ref,param,60,eval,inf);
-        else eval_ref=alphabeta(board_ref,param,6,eval,inf);
-        //std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
-        std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+        else eval_ref=alphabeta(board_ref,param,10,eval,inf);
+        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+        //std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
-            BestMoves[bestmoves_num]=moves[i];
+            BestMoves[bestmoves_num]=moves[priority[i]];
             ++bestmoves_num;
             eval=eval_ref;
         }else if(eval_ref==eval){
-            BestMoves[bestmoves_num]=moves[i];
+            BestMoves[bestmoves_num]=moves[priority[i]];
             ++bestmoves_num;
         }
     }

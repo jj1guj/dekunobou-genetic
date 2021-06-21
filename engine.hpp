@@ -3,7 +3,6 @@
 //minimaxで末端ノードのときに出力する値
 ll nodes;
 bool turn_p;//エンジン側の手番(応急処置)
-float a,b;
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board){
@@ -97,16 +96,12 @@ float alphabeta(Board board,int depth,float alpha,float beta){
                 eval=std::max(eval,eval_calc(board_ref));
                 if(eval>beta)break;
                 alpha=std::max(alpha,eval);
-                a=alpha;
             }else{
                 eval=std::min(eval,eval_calc(board_ref));
                 if(eval<alpha)break;
                 beta=std::min(beta,eval);
-                b=beta;
             }
         }
-        if(eval>100)std::cout<<depth<<" "<<alpha<<" "<<beta<<std::endl;
-        //if(board.turn!=turn_p)std::cout<<"N "<<eval<<std::endl;
         return eval;
     }
     
@@ -120,16 +115,12 @@ float alphabeta(Board board,int depth,float alpha,float beta){
             eval=std::max(eval,eval_ref);
             if(eval>beta)break;
             alpha=std::max(alpha,eval);
-            a=alpha;
         }else{
             eval=std::min(eval,eval_ref);
             if(eval<alpha)break;
             beta=std::min(beta,eval);
-            b=beta;
         }
-        //if(eval>100)std::cout<<depth<<" "<<alpha<<" "<<beta<<std::endl;
     }
-    //if(eval>100)std::cout<<depth<<" "<<moves.size()<<" "<<alpha<<" "<<beta<<std::endl;
     return eval;
 }
 
@@ -150,8 +141,6 @@ int go(Board board){
 
     //現在の評価値を算出
     Board board_ref;
-    //float alpha=-inf,beta=inf;
-    a=-inf;b=inf;
     float eval_alphabeta;
     if(board.point[0]+board.point[1]>=44){
         std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
@@ -159,20 +148,17 @@ int go(Board board){
     for(int i=0;i<moves.size();i++){
         board_ref=board;
         board_ref.push(moves[i]);
-        //1手読み
-        //eval_ref=eval_calc(board_ref);
+
         //先読みしてみる
         nodes=0;
-        //eval_ref=minimax(board_ref,4);
-        //std::cout<<nodes/1000<<"k ";
-        //nodes=0;
-        //eval_ref=alphabeta(board_ref,6,a,b);
         if(board.point[0]+board.point[1]>=44){
-            eval_ref=alphabeta(board_ref,63-board.point[0]-board.point[1],a,b);
-        }else eval_ref=alphabeta(board_ref,8,a,b);
-        //std::cout<<nodes/1000<<"k\n";
-        std::cout<<i+1<<": "<<eval_ref<<std::endl;
-        //std::cout<<i+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<a<<" "<<b<<std::endl;
+            //残り20手で完全読み
+            eval_ref=alphabeta(board_ref,100,eval,inf);
+        }else{
+            eval_ref=alphabeta(board_ref,8,eval,inf);
+        }
+        std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

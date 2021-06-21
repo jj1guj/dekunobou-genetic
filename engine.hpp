@@ -42,7 +42,8 @@ float minimax(Board board,float param[param_size],int depth){
             //最終的な石の枚数を出力する
             return board.point[turn_p];
         }
-        moves=moves2;
+        return minimax(board,param,depth-1);
+        //moves=moves2;
     }
 
     float eval;
@@ -89,6 +90,7 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
         if(moves2.size()==0){
             return board.point[turn_p];
         }
+        return alphabeta(board,param,depth-1,alpha,beta);
         moves=moves2;
     }
 
@@ -154,7 +156,8 @@ int go(Board board,float param[param_size]){
     b=inf;
 
     //探索の優先順位付け
-    float evals[64];
+    //たぶん今バグってるのでやらない
+    /*float evals[64];
     int priority[64];
     bool selected[64];
     std::vector<float>evals_sort(moves.size());
@@ -179,16 +182,18 @@ int go(Board board,float param[param_size]){
     }
     std::cout<<"priority: ";
     for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
-    std::cout<<std::endl;
+    std::cout<<std::endl;*/
 
     for(int i=0;i<moves.size();i++){
         //先読みしてみる
         //1手読みしたいなら深さを0に指定する
         board_ref=board;
-        board_ref.push(moves[priority[i]]);
-        eval_ref=minimax(board_ref,param,6);
-        //eval_ref=alphabeta(board_ref,param,6,-inf,inf);
-        std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
+        //board_ref.push(moves[priority[i]]);
+        board_ref.push(moves[i]);
+        //eval_ref=minimax(board_ref,param,6);
+        eval_ref=alphabeta(board_ref,param,6,-inf,inf);
+        //std::cout<<priority[i]+1<<": "<<eval_ref<<std::endl;
+        std::cout<<i+1<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];
@@ -199,6 +204,7 @@ int go(Board board,float param[param_size]){
             ++bestmoves_num;
         }
     }
+    std::cout<<"eval: "<<eval<<std::endl;
     //for debug
     return BestMoves[rnd_select()%bestmoves_num];
 }

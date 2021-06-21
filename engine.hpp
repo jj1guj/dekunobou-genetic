@@ -24,7 +24,9 @@ float minimax(Board board,int depth){
             ++nodes;
             return eval_calc(board);
         }
-        moves=moves2;
+        //パスだったら1手深く読んでみる(相手側の評価値を計算しないように知るため)
+        return minimax(board, depth-1);
+        //moves=moves2;
     }
 
     float eval;
@@ -156,14 +158,14 @@ int go(Board board){
         //eval_ref=eval_calc(board_ref);
         //先読みしてみる
         nodes=0;
-        eval_ref=minimax(board_ref,6);
+        eval_ref=minimax(board_ref,4);
         //std::cout<<nodes/1000<<"k ";
         //nodes=0;
         //eval_ref=alphabeta(board_ref,6,a,b);
         //std::cout<<nodes/1000<<"k\n";
-        //std::cout<<i+1<<": "<<eval_ref<<std::endl;
-        eval_alphabeta=alphabeta(board_ref,6,a,b);
-        std::cout<<i+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<a<<" "<<b<<std::endl;
+        std::cout<<i+1<<": "<<eval_ref<<std::endl;
+        //eval_alphabeta=alphabeta(board_ref,6,a,b);
+        //std::cout<<i+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<a<<" "<<b<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];

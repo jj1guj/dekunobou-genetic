@@ -99,6 +99,10 @@ int play_engine(float param_black[param_size],float param_white[param_size]){
         }
         pass_count=0;
 
+        if(board.point[0]+board.point[1]<=24)cur_offset=cur_opening;
+        else if(board.point[0]+board.point[1]<=44)cur_offset=cur_middle;
+        else cur_offset=cur_ending;
+
         if(board.turn){
             //後手番
             move=go(board,param_white);

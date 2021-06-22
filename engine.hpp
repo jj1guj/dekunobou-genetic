@@ -60,13 +60,13 @@ float ddot(Board& board,float param[param_size]){
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,int move,float param[param_size]){
     //自分の打つ場所の重み
-    float out=param[cur_offset+ref_table[move]],moves_opponent_sum=0;
+    float out=0,moves_opponent_sum=0;
     //1手すすめる
     board.push(move);
     //相手の合法手をカウント
     LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[cur_offset+ref_table[moves[i]]];
-    out+=param[cur_offset+9]*moves_opponent_sum;
+    for(int i=0;i<moves.size();++i)out+=param[cur_offset+ref_table[moves[i]]];
+    out*=param[cur_offset+9];
 
     //石の配置
     out+=ddot(board,param);

@@ -30,9 +30,31 @@ int ref_table[64]={
      0,1,2,3,3,2,1,0,
 };
 
+int board_x[64]={
+    0,0,0,0,0,0,0,0,
+    1,1,1,1,1,1,1,1,
+    2,2,2,2,2,2,2,2,
+    3,3,3,3,3,3,3,3,
+    4,4,4,4,4,4,4,4,
+    5,5,5,5,5,5,5,5,
+    6,6,6,6,6,6,6,6,
+    7,7,7,7,7,7,7,7,
+};
+
+int board_y[64]={
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+    0,1,2,3,4,5,6,7,
+};
+
 float ddot(Board& board,float param[param_size]){
     float ans=0;
-    for(int i=0;i<64;++i)ans+=board.board[i/8][i%8]*param[cur_offset+10+ref_table[i]];
+    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+10+ref_table[i]];
     if(board.turn)ans*=-1;
     return ans;
 }

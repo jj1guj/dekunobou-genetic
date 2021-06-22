@@ -1,9 +1,5 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
-//minimaxで末端ノードのときに出力する値
-#define win_out 30000//先手側が勝ったときの評価値
-#define lose_out -30000//先手側が負けたときの評価値
-#define draw_out 0//引き分けのときの評価値
 
 bool turn_p;//エンジン側の手番(応急処置)
 
@@ -30,6 +26,7 @@ int ref_table[64]={
      0,1,2,3,3,2,1,0,
 };
 
+//8で割った商(盤の行に対応)
 int board_x[64]={
     0,0,0,0,0,0,0,0,
     1,1,1,1,1,1,1,1,
@@ -41,6 +38,7 @@ int board_x[64]={
     7,7,7,7,7,7,7,7,
 };
 
+//8で割った余り(盤の列に対応)
 int board_y[64]={
     0,1,2,3,4,5,6,7,
     0,1,2,3,4,5,6,7,
@@ -61,8 +59,6 @@ float ddot(Board& board,float param[param_size]){
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,int move,float param[param_size]){
-    //序盤(0)・中盤(1)・終盤(2)のどれか算出
-    //int scene=std::max(0,(board.point[0]+board.point[1]-5)/20);
     //自分の打つ場所の重み
     float out=param[cur_offset+ref_table[move]],moves_opponent_sum=0;
     //1手すすめる
@@ -78,63 +74,6 @@ float eval_calc(Board board,int move,float param[param_size]){
     float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
     out+=param[cur_offset+19]*point_ratio;//すでに置かれている石のうちの自分の石の割合
     return out;
-}
-
-//minimax法による先読み
-float minimax(Board board,float param[param_size],int depth){
-    //候補手の展開
-    LegalMoveList moves(board);
-    if(moves.size()==0){
-        //手番を変えて展開
-        board.push(-1);
-        LegalMoveList moves2(board);
-        //終局
-        if(moves2.size()==0){
-            if(!turn_p){
-                //エンジン側が先手のとき
-                if(board.point[0]>board.point[1])return win_out;
-                else if(board.point[0]<board.point[1])return lose_out;
-                else return draw_out;
-            }else{
-                //エンジン側が後手のとき
-                if(board.point[0]>board.point[1])return lose_out;
-                else if(board.point[0]<board.point[1])return win_out;
-                else return draw_out;
-            }
-        }
-        moves=moves2;
-    }
-
-    float eval;
-    if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
-    else eval=inf;//相手が手番のときは評価値の最小値を求める
-    //末端ノードのとき
-    if(depth<=0){
-        for(int i=0;i<moves.size();++i){
-            if(board.turn==turn_p){
-                eval=std::max(eval,eval_calc(board,moves[i],param));
-            }else{
-                eval=std::min(eval,eval_calc(board,moves[i],param));
-            }
-        }
-        //std::cout<<"depth:"<<depth<<", eval:"<<eval<<std::endl;
-        return eval;
-    }
-
-    //それ以外のとき
-    Board board_ref;
-    for(int i=0;i<moves.size();++i){
-        //1手打つ
-        board_ref=board;
-        board_ref.push(moves[i]);
-        if(board.turn==turn_p){
-            eval=std::max(eval,minimax(board_ref,param,depth-1));
-        }else{
-            eval=std::min(eval,minimax(board_ref,param,depth-1));
-        }
-    }
-    //std::cout<<"depth:"<<depth<<", eval:"<<eval<<std::endl;
-    return eval;
 }
 
 int go(Board board,float param[param_size]){
@@ -157,11 +96,6 @@ int go(Board board,float param[param_size]){
     for(int i=0;i<moves.size();i++){
         eval_ref=eval_calc(board,moves[i],param);
 
-        //先読みしてみる
-        //board_ref=board;
-        //board_ref.push(moves[i]);
-        //eval_ref=minimax(board_ref,param,4);
-        //std::cout<<moves[i]<<": "<<eval_ref<<std::endl;
         if(eval_ref>eval){
             bestmoves_num=0;
             BestMoves[bestmoves_num]=moves[i];
@@ -172,7 +106,5 @@ int go(Board board,float param[param_size]){
             ++bestmoves_num;
         }
     }
-    //for debug
-    //std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

@@ -161,7 +161,7 @@ int main(int argc,char** argv){
     //load_eval("eval_41220_averaging.txt",params[0]);
     //rating_test(params[0],params[1]);
     //人との対決用
-    play_engine_human(params[0]);
+    //play_engine_human(params[0]);
 
     //for debug
     /*std::chrono::system_clock::time_point start,end;

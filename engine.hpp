@@ -1,7 +1,6 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
-
-bool turn_p;//エンジン側の手番(応急処置)
+std::random_device rnd_select;
 
 /**********paramについて************/
 /**********
@@ -82,11 +81,8 @@ int go(Board board,float param[param_size]){
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[0];
 
-    turn_p=board.turn;//エンジン側の手番を取得
-
     int BestMoves[64];
     int bestmoves_num;
-    std::random_device rnd_select;
     
     bestmoves_num=0;
     float eval_ref;

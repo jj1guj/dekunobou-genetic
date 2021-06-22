@@ -158,19 +158,6 @@ int main(int argc,char** argv){
     //パラメータの初期化
     for(int i=0;i<N;++i)init_param(params[i]);
 
-    //load_eval("eval_41220_averaging.txt",params[0]);
-    //rating_test(params[0],params[1]);
-    //人との対決用
-    //play_engine_human(params[0]);
-
-    //for debug
-    /*std::chrono::system_clock::time_point start,end;
-    start=std::chrono::system_clock::now();
-    for(int i=0;i<100;++i)play_engine(params[0],params[1]);
-    end=std::chrono::system_clock::now();
-    double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-    std::cout<<elapsed<<" "<<elapsed/100<<std::endl;*/
-
     //最終的に出力する評価関数のファイル名
     std::string eval_output_filename="eval.txt";
 

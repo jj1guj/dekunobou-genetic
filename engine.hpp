@@ -5,8 +5,8 @@ std::random_device rnd_select;
 /**********paramについて************/
 /**********
  * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 20n~20n+8: 相手の置ける場所の重み
- * 20n+9~20n+17: 石の配置の重み(これと盤で内積を取る. 後手番なら反転)
+ * 20n~20n+9: 相手の置ける場所の重み
+ * 20n+10~20n+19: 石の配置の重み(これと盤で内積を取る. 後手番なら反転)
 ***********/
 
 //対称移動を考慮したパラメータと盤上のインデックスの対応表
@@ -47,21 +47,21 @@ int board_y[64]={
     0,1,2,3,4,5,6,7,
 };
 
+//石の配置の評価
+//常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
 float ddot(Board& board,float param[param_size]){
     float ans=0;
-    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+9+ref_table[i]];
+    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+10+ref_table[i]];
     if(board.turn)ans*=-1;
     return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,float param[param_size]){
-    float out=0;
+    float out=ddot(board,param);//石の配置
     //相手の合法手をカウント
     LegalMoveList moves(board);
     for(int i=0;i<moves.size();++i)out+=param[cur_offset+ref_table[moves[i]]];
-    //石の配置
-    out+=ddot(board,param);
     return out;
 }
 

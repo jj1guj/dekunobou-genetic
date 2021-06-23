@@ -154,12 +154,14 @@ int main(int argc,char** argv){
     if(argc>1)threads=atoi(argv[1]);
 
     //パラメータの初期化
-    for(int i=0;i<N;++i)init_param(params[i]);
+    //for(int i=0;i<N;++i)init_param(params[i]);
 
-    load_eval("eval_41220_averaging.txt",params[0]);
+    //load_eval("eval_41220_averaging.txt",params[0]);
+    load_params("data/out_810.csv",params);
     //rating_test(params[0],params[1]);
     //人との対決用
     play_engine_human(params[0]);
+    //play_engine(params[0],params[1]);
 
     //for debug
     /*std::chrono::system_clock::time_point start,end;

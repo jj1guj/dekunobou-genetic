@@ -156,8 +156,8 @@ int main(int argc,char** argv){
     //パラメータの初期化
     //for(int i=0;i<N;++i)init_param(params[i]);
 
-    //load_eval("eval_41220_averaging.txt",params[0]);
-    load_params("data/out_810.csv",params);
+    load_eval("eval.txt",params[0]);
+    //load_params("data/out_810.csv",params);
     //rating_test(params[0],params[1]);
     //人との対決用
     play_engine_human(params[0]);

@@ -6,6 +6,6 @@
 #include<cstring>
 #include<string>
 #include<vector>
-#define param_size 60
+#define param_size 54
 #define inf 1<<30
 #define ll long long

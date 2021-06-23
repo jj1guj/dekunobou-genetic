@@ -32,10 +32,8 @@ ll nodes;//探索ノード数カウント用
 /**********paramについて************/
 /**********
  * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 20n~20n+8: 盤面の重み
- * 20n+9: 相手の置ける場所の重みの合計に掛ける
- * 20n+10~20n+18: 石の配置(これと盤で内積を取る. 後手番なら反転)
- * 20n+19: 盤上の石のうち自分の石の占める割合に掛ける
+ * 20n~20n+8: 相手の置ける場所の重み
+ * 20n+9~20n+17: 石の配置の重み(これと盤で内積を取る. 後手番なら反転)
 ***********/
 
 //対称移動を考慮したパラメータと盤上のインデックスの対応表
@@ -78,30 +76,20 @@ int board_y[64]={
 
 float ddot(Board& board,int& cur_offset,float param[param_size]){
     float ans=0;
-    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+10+ref_table[i]];
+    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+9+ref_table[i]];
     if(board.turn)ans*=-1;
     return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board,int move,float param[param_size]){
-    //自分の打つ場所の重み
-    //どのインデックスから見ていけばいいか算出
-    int cur_offset=(board.point[0]+board.point[1]-4)/20*param_size/3;
-    
-    float out=param[cur_offset+ref_table[move]],moves_opponent_sum=0;
-    //1手すすめる
-    board.push(move);
+float eval_calc(Board board,float param[param_size]){
+    int cur_offset=param_size/3*std::max(0,(board.point[0]+board.point[1]-4)/20);
+    float out=0;
     //相手の合法手をカウント
     LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[cur_offset+ref_table[moves[i]]];
-    out+=param[cur_offset+9]*moves_opponent_sum;
-
+    for(int i=0;i<moves.size();++i)out+=param[cur_offset+ref_table[moves[i]]];
     //石の配置
     out+=ddot(board,cur_offset,param);
-
-    float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
-    out+=param[cur_offset+19]*point_ratio;//すでに置かれている石のうちの自分の石の割合
     return out;
 }
 
@@ -129,9 +117,9 @@ float minimax(Board board,float param[param_size],int depth){
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
             if(board.turn==turn_p){
-                eval=std::max(eval,eval_calc(board,moves[i],param));
+                eval=std::max(eval,eval_calc(board,param));
             }else{
-                eval=std::min(eval,eval_calc(board,moves[i],param));
+                eval=std::min(eval,eval_calc(board,param));
             }
         }
         return eval;
@@ -179,12 +167,14 @@ float alphabeta(Board board,float param[param_size],int depth,float alpha,float 
     if(depth<=0){
         for(int i=0;i<moves.size();++i){
             ++nodes;
+            board_ref=board;
+            board_ref.push(moves[i]);
             if(board.turn==turn_p){
-                eval=std::max(eval,eval_calc(board,moves[i],param));
+                eval=std::max(eval,eval_calc(board,param));
                 if(eval>=beta)break;
                 alpha=std::max(alpha,eval);
             }else{
-                eval=std::min(eval,eval_calc(board,moves[i],param));
+                eval=std::min(eval,eval_calc(board,param));
                 if(eval<=alpha)break;
                 beta=std::min(beta,eval);
             }

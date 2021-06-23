@@ -5,10 +5,10 @@
 #include<random>
 #include<cstring>
 #include<string>
-#define param_size 60
+#define param_size 30
 #define cur_opening 0
-#define cur_middle 20
-#define cur_ending 40
+#define cur_middle 10
+#define cur_ending 20
 #define inf 1<<30
 #define ll long long
 

@@ -142,30 +142,66 @@ int go(Board board){
     //現在の評価値を算出
     Board board_ref;
     float eval_alphabeta;
-    if(board.point[0]+board.point[1]>=44){
+    if(board.point[0]+board.point[1]>=48){
         std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
     }
-    for(int i=0;i<moves.size();i++){
+
+    //探索の優先順位付け
+    float evals[64];
+    int priority[64];
+    bool selected[64];
+    std::vector<float>evals_sort(moves.size());
+
+    //5手読みの評価値を算出
+    for(int i=0; i<moves.size();++i){
         board_ref=board;
         board_ref.push(moves[i]);
+        //evals[i]=eval_calc(board,moves[i],param);
+        evals[i]=alphabeta(board_ref,4,eval,inf);
+        evals_sort[i]=evals[i];
+        eval=std::max(evals[i],eval);
+        selected[i]=false;
+    }
+
+    //評価値の降順にソート
+    std::sort(evals_sort.begin(),evals_sort.end(),std::greater<float>());
+
+
+    for(int i=0;i<moves.size();++i){
+        for(int j=0;j<moves.size();++j){
+            if(!selected[j]&&evals_sort[i]==evals[j]){
+                priority[i]=j;
+                selected[j]=true;
+                break;
+            }
+        }
+    }
+    std::cout<<"priority: ";
+    for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
+    std::cout<<std::endl;
+
+    eval=-inf;
+    for(int i=0;i<moves.size();i++){
+        board_ref=board;
+        board_ref.push(moves[priority[i]]);
 
         //先読みしてみる
         nodes=0;
-        if(board.point[0]+board.point[1]>=44){
+        if(board.point[0]+board.point[1]>=48){
             //残り20手で完全読み
-            eval_ref=alphabeta(board_ref,100,eval,inf);
+            eval_ref=alphabeta(board_ref,100,-inf,inf);
         }else{
             eval_ref=alphabeta(board_ref,8,eval,inf);
         }
-        std::cout<<i+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;
-            BestMoves[bestmoves_num]=moves[i];
+            BestMoves[bestmoves_num]=moves[priority[i]];
             ++bestmoves_num;
             eval=eval_ref;
         }else if(eval_ref==eval){
-            BestMoves[bestmoves_num]=moves[i];
+            BestMoves[bestmoves_num]=moves[priority[i]];
             ++bestmoves_num;
         }
     }

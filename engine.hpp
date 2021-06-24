@@ -8,7 +8,7 @@ bool turn_p;//エンジン側の手番(応急処置)
 float eval_calc(Board board){
     //盤上の自石の割合を返す
     //return (float)board.point[turn_p]/(board.point[0]+board.point[1]);
-    return board.point[turn_p];
+    return board.point[turn_p]-board.point[!turn_p];
 }
 
 //minimax法による先読み
@@ -191,7 +191,7 @@ int go(Board board){
             //残り20手で完全読み
             eval_ref=alphabeta(board_ref,100,-inf,inf);
         }else{
-            eval_ref=alphabeta(board_ref,8,eval,inf);
+            eval_ref=alphabeta(board_ref,6,eval,inf);
         }
         std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
 

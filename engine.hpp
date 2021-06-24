@@ -58,13 +58,12 @@ float ddot(Board& board,float param[param_size]){
         ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
         div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
     }
-    if(!turn_p)ans*=-1;
+    if(turn_p)ans*=-1;
     return ans/div;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    //return ddot(board,param)+param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);//石の配置
     float ans=ddot(board,param);
     //石の枚数に対してもにゃにゃんメソッドを使用
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20

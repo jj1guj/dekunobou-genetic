@@ -1,12 +1,13 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
 std::random_device rnd_select;
+bool turn_p;//エンジン側の手番
 
 /**********paramについて************/
 /**********
  * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 20n~20n+9: 相手の置ける場所の重み
- * 20n+10~20n+19: 石の配置の重み(これと盤で内積を取る. 後手番なら反転)
+ * 11n~11n+9: 石の配置の重み(先手番目線になるので後手番のときは正負を反転させる)
+ * 11n+10: 盤上における自分の石の枚数の割合の重み
 ***********/
 
 //対称移動を考慮したパラメータと盤上のインデックスの対応表
@@ -51,21 +52,16 @@ int board_y[64]={
 //常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
 float ddot(Board& board,float param[param_size]){
     float ans=0;
-    if(board.turn){
-        for(int i=0;i<64;++i)if(board.board[board_x[i]][board_y[i]]==1){
-            ans+=param[cur_offset+ref_table[i]];
-        }
-    }else{
-        for(int i=0;i<64;++i)if(board.board[board_x[i]][board_y[i]]==-1){
-            ans+=param[cur_offset+ref_table[i]];
-        }
+    for(int i=0;i<64;++i){
+        ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
     }
+    if(!turn_p)ans*=-1;
     return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    return ddot(board,param);//石の配置
+    return ddot(board,param)+param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);//石の配置
 }
 
 int go(Board board,float param[param_size]){
@@ -82,6 +78,7 @@ int go(Board board,float param[param_size]){
 
     //現在の評価値を算出
     Board board_ref;
+    turn_p=board.turn;
     for(int i=0;i<moves.size();i++){
         board_ref=board;
         board_ref.push(moves[i]);

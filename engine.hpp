@@ -61,7 +61,8 @@ float ddot(Board& board,float param[param_size]){
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    return ddot(board,param)+param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);//石の配置
+    //return ddot(board,param)+param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);//石の配置
+    return ddot(board,param)+param[cur_offset+10]*board.point[turn_p];//石の配置
 }
 
 int go(Board board,float param[param_size]){

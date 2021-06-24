@@ -58,7 +58,7 @@ float ddot(Board& board,int& cur_offset,float param[param_size]){
         ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
         div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
     }
-    if(!turn_p)ans*=-1;
+    if(turn_p)ans*=-1;
     return ans/div;
 }
 

@@ -51,17 +51,21 @@ int board_y[64]={
 //常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
 float ddot(Board& board,float param[param_size]){
     float ans=0;
-    for(int i=0;i<64;++i){
-        ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
+    if(board.turn){
+        for(int i=0;i<64;++i)if(board.board[board_x[i]][board_y[i]]==1){
+            ans+=param[cur_offset+ref_table[i]];
+        }
+    }else{
+        for(int i=0;i<64;++i)if(board.board[board_x[i]][board_y[i]]==-1){
+            ans+=param[cur_offset+ref_table[i]];
+        }
     }
-    if(board.turn)ans*=-1;
     return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board,float param[param_size]){
-    float out=ddot(board,param);//石の配置
-    return out;
+float eval_calc(Board& board,float param[param_size]){
+    return ddot(board,param);//石の配置
 }
 
 int go(Board board,float param[param_size]){

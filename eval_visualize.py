@@ -23,19 +23,9 @@ L=[float(i.replace("\n","")) for i in L]
 for p in range(3):
     a=L[11*p+9]
     board=np.array([L[11*p+ref_table[i]] for i in range(64)])
-    board[27]=0
-    board[28]=0
-    board[35]=0
-    board[36]=0
     board=board.reshape((8,8))
 
     plt.figure()
     plt.imshow(board,interpolation="nearest",vmin=-1,vmax=1,cmap="jet")
     plt.colorbar()
     plt.savefig("eval_{}.png".format(p))
-
-    board*=a
-    plt.clf()
-    plt.imshow(board,interpolation="nearest",vmin=-1,vmax=1,cmap="jet")
-    plt.colorbar()
-    plt.savefig("eval_opponent_{}.png".format(p))

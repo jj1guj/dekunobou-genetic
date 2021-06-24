@@ -1,39 +1,13 @@
 #include"dekunobou.hpp"
 #include"othello.hpp"
-//minimaxで末端ノードのときに出力する値
-#define win_out 30000//先手側が勝ったときの評価値
-#define lose_out -30000//先手側が負けたときの評価値
-#define draw_out 0//引き分けのときの評価値
-
 bool turn_p;//エンジン側の手番(応急処置)
 ll nodes;//探索ノード数カウント用
 
 /**********paramについて************/
 /**********
- 0~63: 着手に対する重み
- 64: 置ける場所の数に対する重み
- 65: 多分確定石(近似値)に対する重み
-***********/
-
-//評価値の計算(手番側が有利ならプラス)
-/*float eval_calc(Board board,int move,float param[param_size]){
-    float out=param[move],moves_opponent_sum=0;
-    //1手すすめる
-    board.push(move);
-    //相手の合法手をカウント
-    LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)moves_opponent_sum+=param[moves[i]];
-    out+=param[64]*moves_opponent_sum;
-    float point_ratio=(float)board.point[!board.turn]/(board.point[!board.turn]+board.point[board.turn]);
-    out+=param[65]*point_ratio;//すでに置かれている石のうちの自分の石の割合
-    return out;
-}*/
-
-/**********paramについて************/
-/**********
  * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 20n~20n+8: 相手の置ける場所の重み
- * 20n+9~20n+17: 石の配置の重み(これと盤で内積を取る. 後手番なら反転)
+ * 11n~11n+9: 石の配置の重み(先手番目線になるので後手番のときは正負を反転させる)
+ * 11n+10: 盤上における自分の石の枚数の割合の重み
 ***********/
 
 //対称移動を考慮したパラメータと盤上のインデックスの対応表
@@ -74,23 +48,34 @@ int board_y[64]={
     0,1,2,3,4,5,6,7,
 };
 
+//石の配置の評価
+//常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
 float ddot(Board& board,int& cur_offset,float param[param_size]){
-    float ans=0;
-    for(int i=0;i<64;++i)ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+9+ref_table[i]];
-    if(board.turn)ans*=-1;
-    return ans;
+    float ans=0,div=0;
+    //にゃにゃんメソッドを使ってみる
+    //URL: https://twitter.com/Nyanyan_Cube/status/1407694024136265729?s=20
+    for(int i=0;i<64;++i){
+        ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
+        div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
+    }
+    if(!turn_p)ans*=-1;
+    return ans/div;
 }
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board,float param[param_size]){
-    int cur_offset=param_size/3*std::max(0,(board.point[0]+board.point[1]-4)/20);
-    float out=0;
-    //相手の合法手をカウント
-    LegalMoveList moves(board);
-    for(int i=0;i<moves.size();++i)out+=param[cur_offset+ref_table[moves[i]]];
-    //石の配置
-    out+=ddot(board,cur_offset,param);
-    return out;
+float eval_calc(Board& board,float param[param_size]){
+    int scene=(board.point[0]+board.point[1])/20;
+    int cur_offset;
+    if(scene==0)cur_offset=cur_opening;
+    else if(scene==1)cur_offset=cur_middle;
+    else cur_offset=cur_ending;
+
+    float ans=ddot(board,cur_offset,param);
+
+    //石の枚数に対してもにゃにゃんメソッドを使用
+    //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20
+    ans+=param[cur_offset+10]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
+    return ans;
 }
 
 //minimax法による先読み
@@ -218,7 +203,6 @@ int go(Board board,float param[param_size]){
     Board board_ref;
 
     //探索の優先順位付け
-    //たぶん今バグってるのでやらない
     float evals[64];
     int priority[64];
     bool selected[64];

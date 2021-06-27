@@ -66,7 +66,7 @@ float ddot(Board& board,float param[param_size]){
     float ans=0,div=0;
     //にゃにゃんメソッドを使ってみる
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694024136265729?s=20
-    if(!turn_p){
+    /*if(!turn_p){
         //先手番
         for(int i=0;i<64;++i){
             if(board.board[board_x[i]][board_y[i]]==1)ans+=param[cur_offset+ref_table[i]];
@@ -78,13 +78,13 @@ float ddot(Board& board,float param[param_size]){
             if(board.board[board_x[i]][board_y[i]]==-1)ans+=param[cur_offset+ref_table[i]];
             div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);    
         }
-    }
-    /*for(int i=0;i<64;++i){
+    }*/
+    for(int i=0;i<64;++i){
         ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
-        div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
+        //div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
     }
-    if(turn_p)ans*=-1;*/
-    return ans/div;
+    if(turn_p)ans*=-1;
+    return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)

@@ -18,7 +18,7 @@ file_num=len(os.listdir(file_path))
 mov_h=480
 mov_w=640
 fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
-video=cv2.VideoWriter("result.mp4",fourcc,5.0,(mov_w,mov_h),True)
+video=cv2.VideoWriter("result.mp4",fourcc,40.0,(mov_w,mov_h),True)
 
 #世代を取得
 #ファイル名は必ずhoge_[世代].csvになっている必要がある

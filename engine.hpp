@@ -49,30 +49,14 @@ int board_y[64]={
 };
 
 //石の配置の評価
-//常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
 float ddot(Board& board,int& cur_offset,float param[param_size]){
     float ans=0,div=0;
-    //にゃにゃんメソッドを使ってみる
-    //URL: https://twitter.com/Nyanyan_Cube/status/1407694024136265729?s=20
-    if(!turn_p){
-        //先手番
-        for(int i=0;i<64;++i){
-            if(board.board[board_x[i]][board_y[i]]==1)ans+=param[cur_offset+ref_table[i]];
-            div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);    
-        }
-    }else{
-        //後手番
-        for(int i=0;i<64;++i){
-            if(board.board[board_x[i]][board_y[i]]==-1)ans+=param[cur_offset+ref_table[i]];
-            div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);    
-        }
-    }
-    /*for(int i=0;i<64;++i){
+    for(int i=0;i<64;++i){
         ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
-        div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
+        //div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
     }
-    if(turn_p)ans*=-1;*/
-    return ans/div;
+    if(turn_p)ans*=-1;
+    return ans;
 }
 
 //評価値の計算(手番側が有利ならプラス)
@@ -82,7 +66,9 @@ float eval_calc(Board& board,float param[param_size]){
     //石の枚数に対してもにゃにゃんメソッドを使用
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20
     //ans+=param[cur_offset+10]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
-    ans+=param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);
+    LegalMoveList moves(board);//相手の置ける場所
+    for(int i=0;i<moves.size();++i)ans+=param[cur_offset+10+ref_table[moves[i]]];
+    ans+=param[cur_offset+19]*board.point[turn_p]/(board.point[0]+board.point[1]);
     return ans;
 }
 
@@ -254,7 +240,7 @@ int go(Board board,float param[param_size]){
         nodes=0;
         //終盤20手で完全読み
         if(board.point[0]+board.point[1]>=49)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
-        else eval_ref=alphabeta(board_ref,param,9,eval,inf);
+        else eval_ref=alphabeta(board_ref,param,8,eval,inf);
         std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){

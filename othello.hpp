@@ -19,7 +19,7 @@ class Board{
     Board(){init();}
 
     void init(){
-        for(int i=0;i<64;++i)board[i/8][i%8]=0;
+        for(int i=0;i<64;++i)board[i>>3][i&7]=0;
         board[3][3]=-1;
         board[3][4]=1;
         board[4][3]=1;
@@ -31,7 +31,7 @@ class Board{
     //パスは0~63以外の数字にする
     int push(int move){
         if(0<=move&&move<=63){
-            int row=move/8,col=move%8;
+            int row=move>>3,col=move&7;
             if(board[row][col]!=0)return -1;
 
             int fliped=set_flip_limit(row,col);//石を返した枚数
@@ -60,7 +60,7 @@ class Board{
     float push_and_eval(int move,float param[param_size]){
         float eval_diff=0;
         if(0<=move&&move<=63){
-            int row=move/8,col=move%8;
+            int row=move>>3,col=move&7;
             if(board[row][col]!=0)return 0;
 
             int fliped=set_flip_limit(row,col);//石を返した枚数

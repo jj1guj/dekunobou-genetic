@@ -6,13 +6,13 @@ bool turn_p;//エンジン側の手番
 /**********paramについて************/
 /**********
  * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 11n~11n+9: 石の配置の重み(先手番目線になるので後手番のときは正負を反転させる)
- * 11n+10: 盤上における自分の石の枚数の割合の重み
+ * 20n~20n+9: 石の配置の重み(手番側だけ足すので常時手番側からみた値になる)
+ * 20n+10~20n+18: 相手が置ける場所の重み
+ * 20n+19: 盤上における自分の石の枚数の割合の重み
 ***********/
 
 //対称移動を考慮したパラメータと盤上のインデックスの対応表
 //なんか式で書けそうな気もするけどこれが多分手っ取り早い
-//最初からおいてあるところは9にする
 int ref_table[64]={
      0,1,2,3,3,2,1,0,
      1,4,5,6,6,5,4,1,
@@ -22,6 +22,18 @@ int ref_table[64]={
      2,5,7,8,8,7,5,2,
      1,4,5,6,6,5,4,1,
      0,1,2,3,3,2,1,0,
+};
+
+//置ける場所の重みのパラメータと盤上のインデックスの対応表
+int ref_table_move[64]={
+     10,11,12,13,13,12,11,10,
+     11,14,15,16,16,15,14,11,
+     12,15,17,18,18,17,15,12,
+     13,16,18,19,19,18,16,13,
+     13,16,18,19,19,18,16,13,
+     12,15,17,18,18,17,15,12,
+     11,14,15,16,16,15,14,11,
+     10,11,12,13,13,12,11,10,
 };
 
 //8で割った商(盤の行に対応)
@@ -81,7 +93,9 @@ float eval_calc(Board& board,float param[param_size]){
     //石の枚数に対してもにゃにゃんメソッドを使用
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20
     //ans+=param[cur_offset+10]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
-    ans+=param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);
+    LegalMoveList moves(board);//相手の置ける場所
+    for(int i=0;i<moves.size();++i)ans+=param[cur_offset+ref_table_move[moves[i]]];
+    ans+=param[cur_offset+19]*board.point[turn_p]/(board.point[0]+board.point[1]);
     return ans;
 }
 

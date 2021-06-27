@@ -54,27 +54,35 @@ float ddot(Board& board,int& cur_offset,float param[param_size]){
     float ans=0,div=0;
     //にゃにゃんメソッドを使ってみる
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694024136265729?s=20
-    for(int i=0;i<64;++i){
+    if(!turn_p){
+        //先手番
+        for(int i=0;i<64;++i){
+            if(board.board[board_x[i]][board_y[i]]==1)ans+=param[cur_offset+ref_table[i]];
+            div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);    
+        }
+    }else{
+        //後手番
+        for(int i=0;i<64;++i){
+            if(board.board[board_x[i]][board_y[i]]==-1)ans+=param[cur_offset+ref_table[i]];
+            div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);    
+        }
+    }
+    /*for(int i=0;i<64;++i){
         ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
         div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
     }
-    if(turn_p)ans*=-1;
+    if(turn_p)ans*=-1;*/
     return ans/div;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    int scene=(board.point[0]+board.point[1])/20;
-    int cur_offset;
-    if(scene==0)cur_offset=cur_opening;
-    else if(scene==1)cur_offset=cur_middle;
-    else cur_offset=cur_ending;
-
+    int cur_offset=(board.point[0]+board.point[1]-4)/20;
     float ans=ddot(board,cur_offset,param);
-
     //石の枚数に対してもにゃにゃんメソッドを使用
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20
-    ans+=param[cur_offset+10]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
+    //ans+=param[cur_offset+10]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
+    ans+=param[cur_offset+10]*board.point[turn_p]/(board.point[0]+board.point[1]);
     return ans;
 }
 

@@ -76,7 +76,7 @@ float ddot(Board& board,int& cur_offset,float param[param_size]){
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    int cur_offset=(board.point[0]+board.point[1]-4)/20;
+    int cur_offset=(board.point[0]+board.point[1]-4)/20*20;
     float ans=ddot(board,cur_offset,param);
     //石の枚数に対してもにゃにゃんメソッドを使用
     //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20

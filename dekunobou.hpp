@@ -2,6 +2,7 @@
 #include<chrono>
 #include<iostream>
 #include<limits>
+#include<map>
 #include<random>
 #include<cstring>
 #include<string>

@@ -4,19 +4,12 @@ std::random_device rnd_select;
 bool turn_p;//エンジン側の手番
 
 /**********paramについて************/
-/**********
- * n: 序盤・中盤・終盤かを表す(n=0,1,2), eval_calcで計算している
- * 20n~20n+9: 石の配置の重み(手番側だけ足すので常時手番側からみた値になる)
- * 20n+10~20n+18: 相手が置ける場所の重み
- * 20n+19: 盤上における自分の石の枚数の割合の重み
-***********/
 //新しい評価関数の仕様
 /*
 これを参考にする
 https://qiita.com/na-o-ys/items/10d894635c2a6c07ac70
-角周辺の石の配置は3桁の3進数とみなしてこれを10進数に変換し, 対応するインデックスから値を引っ張ってくる
-a*置ける場所の差分(相手-自分)+b*辺の形の評価値の合計
-a, bだけ序盤・中盤・終盤で変える
+角周辺の石の配置は4桁の3進数とみなしてこれを10進数に変換し, 対応するインデックスから値を引っ張ってくる
+a*盤上にしめる自石の割合+辺の形の評価値の合計
 mapで管理
 相手の石: 0
 なにもない: 1
@@ -25,10 +18,12 @@ mapで管理
 石の配置: *ox
 1*1+3*2+9*0=7
 
-0~26: 角付近の形の評価値
-27~28: a,b(序盤)
-29~30: a,b(中盤)
-31~32: a,b(終盤)
+0~80: 石の形の評価値(序盤)
+81: a(序盤)
+82~162: 石の形の評価値(中盤)
+163: a(中盤)
+164~244: 石の形の評価値(終盤)
+245: a(終盤)
 */
 
 std::map<int,std::map<int,int>>shape_value{
@@ -45,19 +40,19 @@ std::map<int,std::map<int,int>>shape_value{
 };
 
 //角周辺の形を計算するときに使用
-int shape_ref[12][3]={
-    {0,1,2},
-    {0,8,16},
-    {7,6,5},
-    {7,15,22},
-    {56,48,40},
-    {56,57,58},
-    {63,62,61},
-    {63,55,47},
-    {0,9,18},//斜め
-    {7,14,21},//斜め
-    {56,49,42},//斜め
-    {63,54,45}//斜め
+int shape_ref[12][4]={
+    {0,1,2,3},
+    {0,8,16,24},
+    {7,6,5,4},
+    {7,15,22,29},
+    {56,48,40,32},
+    {56,57,58,59},
+    {63,62,61,60},
+    {63,55,47,39},
+    {0,9,18,27},//斜め
+    {7,14,21,28},//斜め
+    {56,49,42,35},//斜め
+    {63,54,45,36}//斜め
 };
 
 //8で割った商(盤の行に対応)
@@ -88,27 +83,24 @@ int board_y[64]={
 float calc_shape_value(Board& board,float param[param_size]){
     float val=0;
     int index;
-    int ref1,ref2,ref3;
+    int ref1,ref2,ref3,ref4;
     //角付近の形
     for(int i=0;i<12;++i){
-        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];
+        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];ref4=shape_ref[i][3];
         index=shape_value[turn_p][board.board[board_x[ref1]][board_y[ref1]]];
         index+=3*shape_value[turn_p][board.board[board_x[ref2]][board_y[ref2]]];
         index+=9*shape_value[turn_p][board.board[board_x[ref3]][board_y[ref3]]];
-        val+=param[index];
+        index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
+        val+=param[index+cur_offset];
     }
     return val;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,float param[param_size]){
-    LegalMoveList moves(board);
-    float ans=moves.size();
-    board.push(-1);
-    LegalMoveList moves2(board);
-    ans-=moves2.size();
-    ans*=param[cur_offset];
-    ans=param[cur_offset+1]*calc_shape_value(board,param);
+    float ans=board.point[!board.turn]/(board.point[0]+board.point[1])*12;
+    ans*=param[cur_offset+81];
+    ans+=calc_shape_value(board,param);
     return ans;
 }
 

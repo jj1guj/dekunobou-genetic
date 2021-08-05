@@ -1,7 +1,7 @@
 #include"play.hpp"
 #include<fstream>
 
-void rating_test(float param1[param_size],float param2[param_size]){
+/*void rating_test(float param1[param_size],float param2[param_size]){
     //レーティング計算による評価
     float rating[2]={1500.0,1500.0};
     float K=16;
@@ -37,4 +37,4 @@ void rating_test(float param1[param_size],float param2[param_size]){
             std::cout<<i<<","<<rating[0]<<","<<rating[1]<<","<<(float)win_count[1]/i<<","<<1/(powf(10.0,(rating[0]-rating[1])/400.0)+1)<<","<<(float)win_count[1]/i-1/(powf(10.0,(rating[0]-rating[1])/400.0)+1)<<std::endl;
         }
     }
-}
+}*/

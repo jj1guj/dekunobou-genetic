@@ -10,10 +10,10 @@ using std::swap;
 
 int cur_offset;//序盤・中盤・終盤でパラメータの配列のどのインデックスから値を引っ張ってくればいいか計算する
 
-float params[N][param_size];
+char params[N][param_size];
 int memsize=sizeof(params[0]);
 
-float param_black[param_size],param_white[param_size];
+char param_black[param_size],param_white[param_size];
 int result[3],win_impossible[1000];
 ll win_count[N];
 
@@ -25,15 +25,14 @@ ll itr;
 bool cur_used[N];
 std::random_device rnd;
 
-void init_param(float params[param_size]){
-    //std::random_device rnd;
+void init_param(char params[param_size]){
     for(int i=0;i<param_size;++i){
-        params[i]=2.0*(float)rnd()/0xffffffff-1.0;
+        params[i]=rnd()/101+27;
     }
 }
 
 //対局用の評価関数の読み込み
-int load_eval(std::string filename,float param[param_size]){
+int load_eval(std::string filename,char param[param_size]){
     std::ifstream inputs(filename);
     std::string s;
     int i=0;
@@ -42,40 +41,18 @@ int load_eval(std::string filename,float param[param_size]){
         return -1;
     }
     while(getline(inputs,s)){
-        param[i]=std::stof(s);
+        param[i]=*s.c_str();
         std::cout<<param[i]<<std::endl;
         ++i;
     }
     return 0;
 }
 
-//遺伝的アルゴリズムで使用したパラメータすべてをCSVファイルから読み込む
-int load_params(std::string filename,float params[N][param_size]){
-    std::ifstream inputs(filename);
-    std::string s;
-    int i=0,j;
-    if(inputs.fail()){
-        std::cout<<"Failed to open file\n";
-        return -1;
-    }
-    while(getline(inputs,s)){
-        std::stringstream ss{s};
-        std::string buf;
-        j=0;
-        while(std::getline(ss,buf,',')){
-            params[i][j]=std::stof(buf);
-            ++j;
-        }
-        ++i;
-    }
-    return 0;
-}
-
 //交叉(並列化したいので関数化する)
-void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
+void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
     std::random_device rnd;
     int win_val[2];
-    /*float c,c1[param_size],c2[param_size];
+    char c,c1[param_size],c2[param_size];
 
     //M回交叉する
     for(int m=0;m<M;++m){
@@ -93,14 +70,14 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
             }
             //確率に応じて突然変異を行う
             if((float)rnd()/0xffffffff<=alpha){
-                c=2.0*(float)rnd()/0xffffffff-1.0;
-                while(c==c1[i])c=2.0*(float)rnd()/0xffffffff-1.0;
+                c=rnd()/101+27;
+                while(c==c1[i])c=rnd()/101+27;
                 c1[i]=c;
             }
 
             if((float)rnd()/0xffffffff<=alpha){
-                c=2.0*(float)rnd()/0xffffffff-1.0;
-                while(c==c2[i])c=2.0*(float)rnd()/0xffffffff-1.0;
+                c=rnd()/101+27;
+                while(c==c2[i])c=rnd()/101+27;
                 c2[i]=c;
             }
         }
@@ -127,15 +104,15 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
         if(win_val[1]>thresh){
             for(int i=0;i<param_size;++i)p2[i]=c2[i];
         }
-    }*/
+    }
 
     //遺伝子をもとに戻す
     cur_used[cur1]=false;
     cur_used[cur2]=false;
-    for(int j=0;j<param_size;++j){
+    /*for(int j=0;j<param_size;++j){
         params[cur1][j]=p1[j];
         params[cur2][j]=p2[j];
-    }
+    }*/
     //memcpy(params[cur1],p1,memsize);
     //memcpy(params[cur2],p2,memsize);
 }
@@ -173,8 +150,8 @@ int main(int argc,char** argv){
     std::chrono::system_clock::time_point start,end;
     start=std::chrono::system_clock::now();
 
-    int cur1,cur2,l,r;
-    int r1,r2;
+    //int cur1,cur2,l,r;
+    //int r1,r2;
     //thresh勝不可能ラインの前計算(条件分岐を奇数局目でしか行わないのでその分だけ計算)
     for(int i=0;i<match_genetic/2;++i){
         win_impossible[i]=thresh+2*(i-match_genetic);
@@ -184,8 +161,9 @@ int main(int argc,char** argv){
     int concurrency=std::min(omp_get_max_threads(),N);
     if(threads>0)concurrency=std::min(concurrency,threads);
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
-    float G[256][param_size];
-    int cursors[256],cur_now;
+    char G[256][param_size];
+    //int cursors[256],cur_now;
+    int cursors[256];
     //bool cur_used[N];
     for(int i=0;i<N;++i)cur_used[i]=false;
 
@@ -227,24 +205,23 @@ int main(int argc,char** argv){
                 test_output<<std::endl;
             }
             test_output.close();
-        }
+        }*/
 
         if(itr%10==0){
             end=std::chrono::system_clock::now();
             double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
             std::cout<<itr<<" elapsed:"<<elapsed/1000<<std::endl<<std::endl;
             if(elapsed>timelimit)break;
-        }*/
+        }
     }
-    std::cout<<"out loop\n";
 
     //1番最後の重みをファイルに出力
-    std::ofstream test_output_final(data_path+"/out_"+std::to_string(itr)+".csv");
+    /*std::ofstream test_output_final(data_path+"/out_"+std::to_string(itr)+".csv");
     for(int i=0;i<N;++i){
         for(int j=0;j<param_size;++j)test_output_final<<params[i][j]<<",";
         test_output_final<<std::endl;
     }
-    test_output_final.close();
+    test_output_final.close();*/
 
 
     //総当たり戦を行い最終的に1番強いパラメータを出力

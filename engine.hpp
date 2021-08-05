@@ -19,12 +19,7 @@ mapで管理
 石の配置: *ox
 1*1+3*2+9*0=7
 
-0: a(序盤)
-1~3**10-1: 石の配置(序盤)
-3**10: a(中盤)
-3**10+1~2*3**10-1: 石の配置(中盤)
-2*3**10: a(終盤)
-2*3**10+1~3*11-1: 石の配置(終盤)
+0~3**10-2: 石の配置
 */
 
 std::map<int,std::map<int,int>>shape_value{
@@ -96,15 +91,16 @@ float calc_shape_value(Board& board,float param[param_size]){
             ref=shape_ref[i][j];
             index+=pow3[j]*shape_value[turn_p][board.board[board_x[ref]][board_y[ref]]];
         }
-        val+=param[index+cur_offset];
+        //val+=param[index+cur_offset];
+        val+=param[index];
     }
     return val;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,float param[param_size]){
-    float ans=param[cur_offset]*8*board.point[!board.turn]/(board.point[0]+board.point[1]);
-    ans+=calc_shape_value(board,param);
+    //float ans=param[cur_offset]*8*board.point[!board.turn]/(board.point[0]+board.point[1]);
+    float ans=calc_shape_value(board,param);
     return ans;
 }
 

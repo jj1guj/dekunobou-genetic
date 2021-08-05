@@ -75,7 +75,7 @@ int load_params(std::string filename,float params[N][param_size]){
 void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     std::random_device rnd;
     int win_val[2];
-    float c,c1[param_size],c2[param_size];
+    /*float c,c1[param_size],c2[param_size];
 
     //M回交叉する
     for(int m=0;m<M;++m){
@@ -127,13 +127,17 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
         if(win_val[1]>thresh){
             for(int i=0;i<param_size;++i)p2[i]=c2[i];
         }
-    }
+    }*/
 
     //遺伝子をもとに戻す
     cur_used[cur1]=false;
     cur_used[cur2]=false;
-    memcpy(params[cur1],p1,memsize);
-    memcpy(params[cur2],p2,memsize);
+    for(int j=0;j<param_size;++j){
+        params[cur1][j]=p1[j];
+        params[cur2][j]=p2[j];
+    }
+    //memcpy(params[cur1],p1,memsize);
+    //memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){
@@ -148,8 +152,6 @@ int main(int argc,char** argv){
         //std::cout<<i<<std::endl;
     }
     std::cout<<"init params\n";
-    memcpy(params[0],param_black,memsize);
-    std::cout<<"copy param\n";
 
     //最終的に出力する評価関数のファイル名
     std::string eval_output_filename="eval.txt";
@@ -189,14 +191,13 @@ int main(int argc,char** argv){
 
     //初期の重みを出力
     std::string data_path="data";
-    std::ofstream test_output(data_path+"/out_1.csv");
+    /*std::ofstream test_output(data_path+"/out_1.csv");
     for(int i=0;i<N;++i){
         for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
         test_output<<std::endl;
     }
-    test_output.close();
-
-    /*while(true){
+    test_output.close();*/
+    while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
         
@@ -206,7 +207,8 @@ int main(int argc,char** argv){
             while(cur_used[cursors[i]])cursors[i]=rnd()%N;
             cur_used[cursors[i]]=true;
             
-            memcpy(G[i],params[cursors[i]],memsize);
+            //memcpy(G[i],params[cursors[i]],memsize);
+            for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
         }
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;
@@ -218,7 +220,7 @@ int main(int argc,char** argv){
         }
 
         //今の重みをファイルに出力
-        if(itr%10==0){
+        /*if(itr%10==-1){
             std::ofstream test_output(data_path+"/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
                 for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
@@ -232,8 +234,9 @@ int main(int argc,char** argv){
             double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
             std::cout<<itr<<" elapsed:"<<elapsed/1000<<std::endl<<std::endl;
             if(elapsed>timelimit)break;
-        }
+        }*/
     }
+    std::cout<<"out loop\n";
 
     //1番最後の重みをファイルに出力
     std::ofstream test_output_final(data_path+"/out_"+std::to_string(itr)+".csv");
@@ -276,5 +279,5 @@ int main(int argc,char** argv){
     //output to file
     std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
-    eval_output.close();*/
+    eval_output.close();
 }

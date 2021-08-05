@@ -6,7 +6,7 @@
 #include<random>
 #include<cstring>
 #include<string>
-#define param_size 177147
+#define param_size 59048
 #define cur_opening 0
 #define cur_middle 59049
 #define cur_ending 118098

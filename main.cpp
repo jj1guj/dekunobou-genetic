@@ -155,8 +155,15 @@ int main(int argc,char** argv){
     int threads=0;
     if(argc>1)threads=atoi(argv[1]);
 
+    //スレッド数の設定
+    int concurrency=std::min(omp_get_max_threads(),N);
+    if(threads>0)concurrency=std::min(concurrency,threads);
+    std::cout<<"Concurrency: "<<concurrency<<std::endl;
+
     //パラメータの初期化
+    #pragma omp parallel for num_threads(concurrency)
     for(int i=0;i<N;++i)init_param(params[i]);
+    std::cout<<"init params\n";
 
     //最終的に出力する評価関数のファイル名
     std::string eval_output_filename="eval.txt";
@@ -186,9 +193,6 @@ int main(int argc,char** argv){
     }
     
     //並列化用に準備
-    int concurrency=std::min(omp_get_max_threads(),N);
-    if(threads>0)concurrency=std::min(concurrency,threads);
-    std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;
     //bool cur_used[N];

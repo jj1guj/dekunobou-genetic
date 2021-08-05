@@ -44,19 +44,19 @@ std::map<int,std::map<int,int>>shape_value{
 };
 
 //角周辺の形を計算するときに使用
-int shape_ref[12][3]={
-    {0,1,2},
-    {0,8,16},
-    {7,6,5},
-    {7,15,22},
-    {56,48,40},
-    {56,57,58},
-    {63,62,61},
-    {63,55,47},
-    {0,9,18},//斜め
-    {7,14,21},//斜め
-    {56,49,42},//斜め
-    {63,54,45}//斜め
+int shape_ref[12][4]={
+    {0,1,2,3},
+    {0,8,16,24},
+    {7,6,5,4},
+    {7,15,22,29},
+    {56,48,40,32},
+    {56,57,58,59},
+    {63,62,61,60},
+    {63,55,47,39},
+    {0,9,18,27},//斜め
+    {7,14,21,28},//斜め
+    {56,49,42,35},//斜め
+    {63,54,45,36}//斜め
 };
 
 //8で割った商(盤の行に対応)
@@ -84,31 +84,28 @@ int board_y[64]={
 };
 
 //角付近の形を評価する
-float calc_shape_value(Board& board,float param[param_size]){
+float calc_shape_value(Board& board,float param[param_size],int cur_offset){
     float val=0;
     int index;
-    int ref1,ref2,ref3;
+    int ref1,ref2,ref3,ref4;
     //角付近の形
     for(int i=0;i<12;++i){
-        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];
+        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];ref4=shape_ref[i][3];
         index=shape_value[turn_p][board.board[board_x[ref1]][board_y[ref1]]];
         index+=3*shape_value[turn_p][board.board[board_x[ref2]][board_y[ref2]]];
         index+=9*shape_value[turn_p][board.board[board_x[ref3]][board_y[ref3]]];
-        val+=param[index];
+        index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
+        val+=param[index+cur_offset];
     }
     return val;
 }
 
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board& board,float param[param_size]){
-    LegalMoveList moves(board);
-    float ans=moves.size();
-    board.push(-1);
-    LegalMoveList moves2(board);
-    ans-=moves2.size();
-    int cur_offset=(board.point[0]+board.point[1]-4)/20*20;
-    ans*=param[cur_offset];
-    ans=param[cur_offset+1]*calc_shape_value(board,param);
+    float ans=board.point[!board.turn]/(board.point[0]+board.point[1])*12;
+    int cur_offset=(board.point[0]+board.point[1]-4)/20*82;
+    ans*=param[cur_offset+81];
+    ans+=calc_shape_value(board,param,cur_offset);
     return ans;
 }
 

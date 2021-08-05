@@ -136,34 +136,20 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     memcpy(params[cur2],p2,memsize);
 }
 
-//盤面に対し線対称な点との平均を取る
-void averaging(float dst[param_size],float src[param_size]){
-    memcpy(dst,src,memsize);
-    for(int i=0;i<64;++i){
-        dst[i]=src[i];
-        dst[i]+=src[i%8*8+i/8];
-        dst[i]+=src[i/8*8+abs(i%8-7)];
-        dst[i]+=src[i/8+abs(i%8-7)*8];
-        dst[i]+=src[abs(i/8-7)*8+i%8];
-        dst[i]+=src[abs(i/8-7)+i%8*8];
-        dst[i]+=src[abs(i/8-7)*8+abs(i%8-7)];
-        dst[i]+=src[abs(i/8-7)+abs(i%8-7)*8];
-        dst[i]/=8;
-    }
-}
 int main(int argc,char** argv){
     int threads=0;
     if(argc>1)threads=atoi(argv[1]);
 
-    //スレッド数の設定
-    int concurrency=std::min(omp_get_max_threads(),N);
-    if(threads>0)concurrency=std::min(concurrency,threads);
-    std::cout<<"Concurrency: "<<concurrency<<std::endl;
-
     //パラメータの初期化
-    #pragma omp parallel for num_threads(concurrency)
-    for(int i=0;i<N;++i)init_param(params[i]);
+    std::cout<<memsize<<std::endl;
+    #pragma omp parallel for
+    for(int i=0;i<N;++i){
+        init_param(params[i]);
+        //std::cout<<i<<std::endl;
+    }
     std::cout<<"init params\n";
+    memcpy(params[0],param_black,memsize);
+    std::cout<<"copy param\n";
 
     //最終的に出力する評価関数のファイル名
     std::string eval_output_filename="eval.txt";
@@ -193,6 +179,9 @@ int main(int argc,char** argv){
     }
     
     //並列化用に準備
+    int concurrency=std::min(omp_get_max_threads(),N);
+    if(threads>0)concurrency=std::min(concurrency,threads);
+    std::cout<<"Concurrency: "<<concurrency<<std::endl;
     float G[256][param_size];
     int cursors[256],cur_now;
     //bool cur_used[N];
@@ -207,7 +196,7 @@ int main(int argc,char** argv){
     }
     test_output.close();
 
-    while(true){
+    /*while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
         
@@ -287,5 +276,5 @@ int main(int argc,char** argv){
     //output to file
     std::ofstream eval_output("eval.txt");
     for(int i=0;i<param_size;++i)eval_output<<params[best][i]<<std::endl;
-    eval_output.close();
+    eval_output.close();*/
 }

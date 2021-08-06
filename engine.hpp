@@ -92,7 +92,6 @@ float calc_shape_value(Board& board,char param[param_size]){
             ref=shape_ref[i][j];
             index+=pow3[j]*shape_value[turn_p][board.board[board_x[ref]][board_y[ref]]];
         }
-        //val+=param[index+cur_offset];
         val+=(param[index]-27)*0.02-1.0;
     }
     if(!board.turn)val*=-1.0;

@@ -113,8 +113,8 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
         params[cur1][j]=p1[j];
         params[cur2][j]=p2[j];
     }*/
-    //memcpy(params[cur1],p1,memsize);
-    //memcpy(params[cur2],p2,memsize);
+    memcpy(params[cur1],p1,memsize);
+    memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){
@@ -141,7 +141,7 @@ int main(int argc,char** argv){
     match_times=50;//対局回数
     match_times/=2;
     alpha=1e-2;//突然変異を起こす確率
-    timelimit=10*3600;//単位は秒
+    timelimit=46*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     itr=0;
 
@@ -185,8 +185,8 @@ int main(int argc,char** argv){
             while(cur_used[cursors[i]])cursors[i]=rnd()%N;
             cur_used[cursors[i]]=true;
             
-            //memcpy(G[i],params[cursors[i]],memsize);
-            for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
+            memcpy(G[i],params[cursors[i]],memsize);
+            //for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
         }
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;

@@ -12,9 +12,11 @@ a*盤上における自石の割合+石の配置の評価値の合計
 いずれのパラメータも序盤・中盤・終盤で変える
 石の配置は3**10-1通り(何も置かれていない状況は考えなくていいので)
 mapで管理
-相手の石: 2
+後手の石: 2
 なにもない: 0
-自分の石: 1
+先手の石: 1
+後手番で評価する際は符号を反転させる
+
 例
 石の配置: *ox
 1*1+3*2+9*0=7
@@ -31,9 +33,9 @@ std::map<int,std::map<int,int>>shape_value{
     }},
     //後手番
     {1,{
-        {-1,1},
+        {-1,2},
         {0,0},
-        {1,2},
+        {1,1},
     }}
 };
 
@@ -93,6 +95,7 @@ float calc_shape_value(Board& board,char param[param_size]){
         //val+=param[index+cur_offset];
         val+=(param[index]-27)*0.02-1.0;
     }
+    if(!board.turn)val*=-1.0;
     return val;
 }
 

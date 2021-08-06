@@ -4,7 +4,7 @@ Twitter上では<del>[遺伝的アルゴリズムくん](https://twitter.com/jj1
 # 現状できること
 1手読みのAI同士を対戦させることでより勝率の高い評価関数を生成する.  
 # 動作環境
-<del>WSL又はLinux系OS</del>Windows(VisualStudio)でもビルドできると思います  
+<del>WSL又はLinux系OS</del><del>Windows(VisualStudio)でもビルドできると思います</del>Linux系OSのみ動作確認しています  
 ビルドに当たりcmake, make, OpenMPが必要です.  
 可視化用のPythonスクリプトではmatplotlib, OpenCV, numpy, tqdmが必要です.
 # ビルド
@@ -15,10 +15,12 @@ make
 ```
 # 実行
 ```
+ulimit -s unlimited
 ./dekunobou
 ```
 スレッド数を指定したい場合は
 ```
+ulimit -s unlimited
 ./dekunobou [スレッド数]
 ```
 スレッド数の指定がないと動作環境での最大スレッド数で動作します

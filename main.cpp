@@ -56,33 +56,28 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
 
     //M回交叉する
     for(int m=0;m<M;++m){
+        *c1=*p1;
+        *c2=*p2;
         int l=rnd()%param_size;
         int r=rnd()%param_size;
         while(l==r)r=rnd()%param_size;
         if(r<l)swap(r,l);
-        for(int i=0;i<param_size;++i){
-            if(l<=i&&i<=r){
-                c1[i]=p2[i];
-                c2[i]=p1[i];
-            }else{
-                c1[i]=p1[i];
-                c2[i]=p2[i];
-            }
-            //確率に応じて突然変異を行う
-            if((float)rnd()/0xffffffff<=alpha){
-                c=rnd()/101+27;
-                while(c==c1[i])c=rnd()/101+27;
-                c1[i]=c;
-            }
+        for(int i=l;i<=r;++i){
+            swap(c1[i],c2[i]);
+        }
+        for(int i=0;i<param_size/100;++i){
+            l=rnd()%param_size;
+            c=rnd()/101+27;
+            while(c==c1[l])c=rnd()/101+27;
+            c1[l]=c;
 
-            if((float)rnd()/0xffffffff<=alpha){
-                c=rnd()/101+27;
-                while(c==c2[i])c=rnd()/101+27;
-                c2[i]=c;
-            }
+            l=rnd()%param_size;
+            c=rnd()/101+27;
+            while(c==c2[l])c=rnd()/101+27;
+            c2[l]=c;
         }
 
-        //子と親で対戦する(ここ並列化したい)
+        //子と親で対戦する
         win_val[0]=0;
         win_val[1]=0;
         for(int b=0;b<match_genetic;++b){
@@ -98,11 +93,13 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
 
         //子の勝ち数が閾値を超えたら置き換える
         if(win_val[0]>thresh){
-            for(int i=0;i<param_size;++i)p1[i]=c1[i];
+            *p1=*c1;
+            //for(int i=0;i<param_size;++i)p1[i]=c1[i];
         }
 
         if(win_val[1]>thresh){
-            for(int i=0;i<param_size;++i)p2[i]=c2[i];
+            *p2=*c2;
+            //for(int i=0;i<param_size;++i)p2[i]=c2[i];
         }
     }
 
@@ -113,8 +110,10 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
         params[cur1][j]=p1[j];
         params[cur2][j]=p2[j];
     }*/
-    memcpy(params[cur1],p1,memsize);
-    memcpy(params[cur2],p2,memsize);
+    *params[cur1]=*p1;
+    *params[cur2]=*p2;
+    //memcpy(params[cur1],p1,memsize);
+    //memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){

@@ -11,9 +11,12 @@ https://qiita.com/na-o-ys/items/10d894635c2a6c07ac70
 角周辺の石の配置は4桁の3進数とみなしてこれを10進数に変換し, 対応するインデックスから値を引っ張ってくる
 a*盤上にしめる自石の割合+辺の形の評価値の合計
 mapで管理
-相手の石: 0
-なにもない: 1
-自分の石: 2
+なにもない: 0
+先手の石: 1
+後手の石: 2
+
+これで先手目線にして後手番で評価するときには正負を反転させる
+
 例
 石の配置: *ox
 1*1+3*2+9*0=7
@@ -28,14 +31,14 @@ mapで管理
 
 std::map<int,std::map<int,int>>shape_value{
     {0,{
-        {-1,0},
-        {0,1},
-        {1,2},
+        {-1,2},
+        {0,0},
+        {1,1},
     }},
     {1,{
         {-1,2},
-        {0,1},
-        {1,0},
+        {0,0},
+        {1,1},
     }}
 };
 
@@ -93,6 +96,8 @@ float calc_shape_value(Board& board,float param[param_size]){
         index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
         val+=param[index+cur_offset];
     }
+    //後手番のときは符号を反転
+    if(!board.turn)val*=-1.0;
     return val;
 }
 

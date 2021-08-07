@@ -18,28 +18,33 @@ https://qiita.com/na-o-ys/items/10d894635c2a6c07ac70
 a*置ける場所の差分(相手-自分)+b*辺の形の評価値の合計
 a, bだけ序盤・中盤・終盤で変える
 mapで管理
-相手の石: 0
-なにもない: 1
-自分の石: 2
+なにもない: 0
+先手の石: 1
+後手の石: 2
+
+これで先手目線にして後手番で評価するときには正負を反転させる
+
 例
 石の配置: *ox
-1*1+3*2+9*0=7
-0~26: 角付近の形の評価値
-27~28: a,b(序盤)
-29~30: a,b(中盤)
-31~32: a,b(終盤)
+1*0+3*1+9*2=21
+0~80: 石の形の評価値(序盤)
+81: a(序盤)
+82~162: 石の形の評価値(中盤)
+163: a(中盤)
+164~244: 石の形の評価値(終盤)
+245: a(終盤)
 */
 
 std::map<int,std::map<int,int>>shape_value{
     {0,{
-        {-1,0},
-        {0,1},
-        {1,2},
+        {-1,2},
+        {0,0},
+        {1,1},
     }},
     {1,{
         {-1,2},
-        {0,1},
-        {1,0},
+        {0,0},
+        {1,1},
     }}
 };
 
@@ -97,6 +102,8 @@ float calc_shape_value(Board& board,float param[param_size],int cur_offset){
         index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
         val+=param[index+cur_offset];
     }
+    //後手番のときは符号を反転
+    if(!board.turn)val*=-1.0;
     return val;
 }
 

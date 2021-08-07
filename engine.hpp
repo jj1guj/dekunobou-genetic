@@ -10,83 +10,6 @@ ll nodes;//探索ノード数カウント用
  * 11n+10: 盤上における自分の石の枚数の割合の重み
 ***********/
 
-//対称移動を考慮したパラメータと盤上のインデックスの対応表
-//なんか式で書けそうな気もするけどこれが多分手っ取り早い
-//最初からおいてあるところは9にする
-/*int ref_table[64]={
-     0,1,2,3,3,2,1,0,
-     1,4,5,6,6,5,4,1,
-     2,5,7,8,8,7,5,2,
-     3,6,8,9,9,8,6,3,
-     3,6,8,9,9,8,6,3,
-     2,5,7,8,8,7,5,2,
-     1,4,5,6,6,5,4,1,
-     0,1,2,3,3,2,1,0,
-};
-
-//置ける場所の重みのパラメータと盤上のインデックスの対応表
-int ref_table_move[64]={
-     10,11,12,13,13,12,11,10,
-     11,14,15,16,16,15,14,11,
-     12,15,17,18,18,17,15,12,
-     13,16,18,19,19,18,16,13,
-     13,16,18,19,19,18,16,13,
-     12,15,17,18,18,17,15,12,
-     11,14,15,16,16,15,14,11,
-     10,11,12,13,13,12,11,10,
-};
-
-//8で割った商(盤の行に対応)
-int board_x[64]={
-    0,0,0,0,0,0,0,0,
-    1,1,1,1,1,1,1,1,
-    2,2,2,2,2,2,2,2,
-    3,3,3,3,3,3,3,3,
-    4,4,4,4,4,4,4,4,
-    5,5,5,5,5,5,5,5,
-    6,6,6,6,6,6,6,6,
-    7,7,7,7,7,7,7,7,
-};
-
-//8で割った余り(盤の列に対応)
-int board_y[64]={
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-    0,1,2,3,4,5,6,7,
-};
-
-//石の配置の評価
-//常に先手側がいいと+になるので評価関数の仕様上後手番のときは符号を反転させる
-float ddot(Board& board,int& cur_offset,float param[param_size]){
-    float ans=0,div=0;
-    //にゃにゃんメソッドを使ってみる
-    //URL: https://twitter.com/Nyanyan_Cube/status/1407694024136265729?s=20
-    for(int i=0;i<64;++i){
-        ans+=board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]];
-        div+=std::abs(board.board[board_x[i]][board_y[i]]*param[cur_offset+ref_table[i]]);
-    }
-    if(turn_p)ans*=-1;
-    return ans/div;
-}
-
-//評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board& board,float param[param_size]){
-    int cur_offset=(board.point[0]+board.point[1]-4)/20*20;
-    float ans=ddot(board,cur_offset,param);
-    //石の枚数に対してもにゃにゃんメソッドを使用
-    //URL: https://twitter.com/Nyanyan_Cube/status/1407694260242055172?s=20
-    ans+=param[cur_offset+19]*(board.point[turn_p]-board.point[!turn_p])/(board.point[0]+board.point[1]);
-    
-    LegalMoveList moves(board);//相手の置ける場所
-    for(int i=0;i<moves.size();++i)ans+=param[cur_offset+ref_table_move[moves[i]]];
-    return ans;
-}*/
-
 //新しい評価関数の仕様
 /*
 これを参考にする
@@ -101,7 +24,6 @@ mapで管理
 例
 石の配置: *ox
 1*1+3*2+9*0=7
-
 0~26: 角付近の形の評価値
 27~28: a,b(序盤)
 29~30: a,b(中盤)
@@ -122,19 +44,19 @@ std::map<int,std::map<int,int>>shape_value{
 };
 
 //角周辺の形を計算するときに使用
-int shape_ref[12][3]={
-    {0,1,2},
-    {0,8,16},
-    {7,6,5},
-    {7,15,22},
-    {56,48,40},
-    {56,57,58},
-    {63,62,61},
-    {63,55,47},
-    {0,9,18},//斜め
-    {7,14,21},//斜め
-    {56,49,42},//斜め
-    {63,54,45}//斜め
+int shape_ref[12][4]={
+    {0,1,2,3},
+    {0,8,16,24},
+    {7,6,5,4},
+    {7,15,22,29},
+    {56,48,40,32},
+    {56,57,58,59},
+    {63,62,61,60},
+    {63,55,47,39},
+    {0,9,18,27},//斜め
+    {7,14,21,28},//斜め
+    {56,49,42,35},//斜め
+    {63,54,45,36}//斜め
 };
 
 //8で割った商(盤の行に対応)
@@ -162,30 +84,28 @@ int board_y[64]={
 };
 
 //角付近の形を評価する
-float calc_shape_value(Board& board,float param[param_size]){
+float calc_shape_value(Board& board,float param[param_size],int cur_offset){
     float val=0;
     int index;
-    int ref1,ref2,ref3;
+    int ref1,ref2,ref3,ref4;
     //角付近の形
     for(int i=0;i<12;++i){
-        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];
+        ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];ref4=shape_ref[i][3];
         index=shape_value[turn_p][board.board[board_x[ref1]][board_y[ref1]]];
         index+=3*shape_value[turn_p][board.board[board_x[ref2]][board_y[ref2]]];
         index+=9*shape_value[turn_p][board.board[board_x[ref3]][board_y[ref3]]];
-        val+=param[index];
+        index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
+        val+=param[index+cur_offset];
     }
     return val;
 }
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board,float param[param_size]){
-    LegalMoveList moves(board);
-    float ans=moves.size();
-    board.push(-1);
-    LegalMoveList moves2(board);
-    ans-=moves2.size();
-    ans*=param[cur_offset];
-    ans=param[cur_offset+1]*calc_shape_value(board,param);
+float eval_calc(Board& board,float param[param_size]){
+    float ans=board.point[!board.turn]/(board.point[0]+board.point[1])*12;
+    int cur_offset=(board.point[0]+board.point[1]-4)/20*82;
+    ans*=param[cur_offset+81];
+    ans+=calc_shape_value(board,param,cur_offset);
     return ans;
 }
 

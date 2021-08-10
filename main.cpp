@@ -10,10 +10,10 @@ using std::swap;
 
 int cur_offset;//序盤・中盤・終盤でパラメータの配列のどのインデックスから値を引っ張ってくればいいか計算する
 
-char params[N][param_size];
+float params[N][param_size];
 int memsize=sizeof(params[0]);
 
-char param_black[param_size],param_white[param_size];
+float param_black[param_size],param_white[param_size];
 int result[3],win_impossible[1000];
 ll win_count[N];
 
@@ -25,14 +25,14 @@ ll itr;
 bool cur_used[N];
 std::random_device rnd;
 
-void init_param(char params[param_size]){
+void init_param(float params[param_size]){
     for(int i=0;i<param_size;++i){
-        params[i]=rnd()/101+27;
+        params[i]=2.0*(float)rnd()/0xffffffff-1.0;
     }
 }
 
 //対局用の評価関数の読み込み
-int load_eval(std::string filename,char param[param_size]){
+int load_eval(std::string filename,float param[param_size]){
     std::ifstream inputs(filename);
     std::string s;
     int i=0;
@@ -49,15 +49,16 @@ int load_eval(std::string filename,char param[param_size]){
 }
 
 //交叉(並列化したいので関数化する)
-void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
+void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     std::random_device rnd;
     int win_val[2];
-    char c,c1[param_size],c2[param_size];
+    float c,c1[param_size],c2[param_size];
 
     //M回交叉する
     for(int m=0;m<M;++m){
-        *c1=*p1;
-        *c2=*p2;
+        memcpy(c1,p1,memsize);
+        memcpy(c2,p2,memsize);
+        std::cout<<"a\n";
         int l=rnd()%param_size;
         int r=rnd()%param_size;
         while(l==r)r=rnd()%param_size;
@@ -67,13 +68,13 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
         }
         for(int i=0;i<param_size/100;++i){
             l=rnd()%param_size;
-            c=rnd()/101+27;
-            while(c==c1[l])c=rnd()/101+27;
+            c=2.0*(float)rnd()/0xffffffff-1.0;
+            while(c==c1[l])c=2.0*(float)rnd()/0xffffffff-1.0;
             c1[l]=c;
 
             l=rnd()%param_size;
-            c=rnd()/101+27;
-            while(c==c2[l])c=rnd()/101+27;
+            c=2.0*(float)rnd()/0xffffffff-1.0;
+            while(c==c2[l])c=2.0*(float)rnd()/0xffffffff-1.0;
             c2[l]=c;
         }
 
@@ -93,27 +94,19 @@ void intersection(char p1[param_size],char p2[param_size],int cur1,int cur2){
 
         //子の勝ち数が閾値を超えたら置き換える
         if(win_val[0]>thresh){
-            *p1=*c1;
-            //for(int i=0;i<param_size;++i)p1[i]=c1[i];
+            memcpy(p1,c1,memsize);
         }
 
         if(win_val[1]>thresh){
-            *p2=*c2;
-            //for(int i=0;i<param_size;++i)p2[i]=c2[i];
+            memcpy(p2,c2,memsize);
         }
     }
 
     //遺伝子をもとに戻す
     cur_used[cur1]=false;
     cur_used[cur2]=false;
-    /*for(int j=0;j<param_size;++j){
-        params[cur1][j]=p1[j];
-        params[cur2][j]=p2[j];
-    }*/
-    *params[cur1]=*p1;
-    *params[cur2]=*p2;
-    //memcpy(params[cur1],p1,memsize);
-    //memcpy(params[cur2],p2,memsize);
+    memcpy(params[cur1],p1,memsize);
+    memcpy(params[cur2],p2,memsize);
 }
 
 int main(int argc,char** argv){
@@ -125,7 +118,6 @@ int main(int argc,char** argv){
     #pragma omp parallel for
     for(int i=0;i<N;++i){
         init_param(params[i]);
-        //std::cout<<i<<std::endl;
     }
     std::cout<<"init params\n";
 
@@ -160,7 +152,7 @@ int main(int argc,char** argv){
     int concurrency=std::min(omp_get_max_threads(),N);
     if(threads>0)concurrency=std::min(concurrency,threads);
     std::cout<<"Concurrency: "<<concurrency<<std::endl;
-    char G[256][param_size];
+    float G[256][param_size];
     //int cursors[256],cur_now;
     int cursors[256];
     //bool cur_used[N];
@@ -185,7 +177,6 @@ int main(int argc,char** argv){
             cur_used[cursors[i]]=true;
             
             memcpy(G[i],params[cursors[i]],memsize);
-            //for(int j=0;j<param_size;++j)G[i][j]=params[cursors[i]][j];
         }
         for(int i=0;i<concurrency*2;++i)std::cout<<cursors[i]<<" ";
         std::cout<<std::endl;
@@ -215,12 +206,12 @@ int main(int argc,char** argv){
     }
 
     //1番最後の重みをファイルに出力
-    /*std::ofstream test_output_final(data_path+"/out_"+std::to_string(itr)+".csv");
+    std::ofstream test_output_final(data_path+"/out_"+std::to_string(itr)+".csv");
     for(int i=0;i<N;++i){
         for(int j=0;j<param_size;++j)test_output_final<<params[i][j]<<",";
         test_output_final<<std::endl;
     }
-    test_output_final.close();*/
+    test_output_final.close();
 
 
     //総当たり戦を行い最終的に1番強いパラメータを出力

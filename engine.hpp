@@ -80,7 +80,7 @@ int board_y[64]={
 int pow3[10]={1,3,9,27,81,243,729,2187,6561,19683};
 
 //角付近の形を評価する
-float calc_shape_value(Board& board,char param[param_size]){
+float calc_shape_value(Board& board,float param[param_size]){
     float val=0;
     int index;
     int ref;
@@ -92,20 +92,21 @@ float calc_shape_value(Board& board,char param[param_size]){
             ref=shape_ref[i][j];
             index+=pow3[j]*shape_value[turn_p][board.board[board_x[ref]][board_y[ref]]];
         }
-        val+=(param[index]-27)*0.02-1.0;
+        //val+=(param[index]-27)*0.02-1.0;
+        val+=param[index];
     }
     if(!board.turn)val*=-1.0;
     return val;
 }
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board,char param[param_size]){
+float eval_calc(Board board,float param[param_size]){
     //float ans=param[cur_offset]*8*board.point[!board.turn]/(board.point[0]+board.point[1]);
     float ans=calc_shape_value(board,param);
     return ans;
 }
 
-int go(Board board,char param[param_size]){
+int go(Board board,float param[param_size]){
     float eval=-inf;
     LegalMoveList moves(board);
     //1手だけのときはその手を返す

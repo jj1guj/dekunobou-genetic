@@ -3,7 +3,7 @@
 #include"engine.hpp"
 
 #pragma once
-int play_engine(char param_black[param_size],char param_white[param_size]){
+int play_engine(float param_black[param_size],float param_white[param_size]){
     Board board;
     int pass_count=0;
     int move;

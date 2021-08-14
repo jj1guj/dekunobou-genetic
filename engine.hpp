@@ -269,11 +269,9 @@ int go(Board board,float param[param_size]){
             }
         }
     }
-    std::cout<<"priority: ";
-    for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
-    std::cout<<std::endl;
 
-    if(board.point[0]+board.point[1]>=49)std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
+    int qsearch_thresh=49;
+    if(board.point[0]+board.point[1]>=qsearch_thresh)std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
     eval=-inf;
     for(int i=0;i<moves.size();i++){
         //先読みしてみる
@@ -283,9 +281,8 @@ int go(Board board,float param[param_size]){
         
         nodes=0;
         //終盤20手で完全読み
-        if(board.point[0]+board.point[1]>=49)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
-        else eval_ref=alphabeta(board_ref,param,8,eval,inf);
-        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+        if(board.point[0]+board.point[1]>=qsearch_thresh)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
+        else eval_ref=alphabeta(board_ref,param,6,eval,inf);
 
         if(eval_ref>eval){
             bestmoves_num=0;
@@ -298,6 +295,6 @@ int go(Board board,float param[param_size]){
         }
     }
     //for debug
-    std::cout<<"eval: "<<eval<<std::endl;
+    //std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }

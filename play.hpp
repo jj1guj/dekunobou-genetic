@@ -46,7 +46,9 @@ int play_engine_human(float param[param_size]){
         if(pass_count>1)break;
         LegalMoveList moves(board);
         if(moves.size()==0){
-            std::cout<<"pass\n";
+            std::string s;
+            //std::cout<<"pass[Y/n] ";
+            //std::cin>>s;
             board.push(-1);
             ++pass_count;
             continue;

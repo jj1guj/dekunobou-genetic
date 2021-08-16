@@ -317,9 +317,9 @@ int main(int argc,char** argv){
     }
 
     //手番をセット
-    if(argv[2]=="0"){
+    if(argv[2][0]=='0'){
         board.turn=false;
-    }else if(argv[2]=="1"){
+    }else if(argv[2][0]=='1'){
         board.turn=true;
     }
 

@@ -271,7 +271,6 @@ int go(Board board,float param[param_size]){
     }
 
     int qsearch_thresh=49;
-    if(board.point[0]+board.point[1]>=qsearch_thresh)std::cout<<"depth: "<<63-board.point[0]-board.point[1]<<std::endl;
     eval=-inf;
     for(int i=0;i<moves.size();i++){
         //先読みしてみる

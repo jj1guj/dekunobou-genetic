@@ -270,6 +270,12 @@ int go(Board board,float param[param_size]){
         }
     }
 
+    //for debug
+    //std::cout<<"priority: ";
+    //for(int i=0;i<moves.size();++i)std::cout<<priority[i]+1<<" ";
+    //std::cout<<std::endl;
+
+    //終盤完全読みのしきい値. 盤上の石の数がこれ以上になったら完全読みをする
     int qsearch_thresh=49;
     eval=-inf;
     for(int i=0;i<moves.size();i++){
@@ -279,9 +285,12 @@ int go(Board board,float param[param_size]){
         board_ref.push(moves[priority[i]]);
         
         nodes=0;
-        //終盤20手で完全読み
+
         if(board.point[0]+board.point[1]>=qsearch_thresh)eval_ref=alphabeta(board_ref,param,60,-inf,inf);
         else eval_ref=alphabeta(board_ref,param,6,eval,inf);
+
+        //for debug
+        //std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;

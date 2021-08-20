@@ -21,12 +21,15 @@ mapで管理
 石の配置: *ox
 1*1+3*2+9*0=7
 
-0~80: 石の形の評価値(序盤)
-81: a(序盤)
-82~162: 石の形の評価値(中盤)
-163: a(中盤)
-164~244: 石の形の評価値(終盤)
-245: a(終盤)
+0~80: 辺の形の評価値(序盤)
+81~161: 斜めの形の評価値(序盤)
+162: a(序盤)
+163~243: 辺の形の評価値(中盤)
+244~324: 斜めの形の評価値(中盤)
+325: a(中盤)
+326~406: 辺の形の評価値(終盤)
+407~487: 斜めの形の評価値(終盤)
+488: a(終盤)
 */
 
 std::map<int,std::map<int,int>>shape_value{
@@ -94,6 +97,9 @@ float calc_shape_value(Board& board,float param[param_size]){
         index+=3*shape_value[turn_p][board.board[board_x[ref2]][board_y[ref2]]];
         index+=9*shape_value[turn_p][board.board[board_x[ref3]][board_y[ref3]]];
         index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
+        
+        //斜めのとき
+        if(i>=8)index+=81;
         val+=param[index+cur_offset];
     }
     //後手番のときは符号を反転
@@ -104,7 +110,7 @@ float calc_shape_value(Board& board,float param[param_size]){
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,float param[param_size]){
     float ans=board.point[!board.turn]/(board.point[0]+board.point[1])*12;
-    ans*=param[cur_offset+81];
+    ans*=param[cur_offset+162];
     ans+=calc_shape_value(board,param);
     return ans;
 }

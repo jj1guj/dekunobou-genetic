@@ -40,7 +40,7 @@ for j in tqdm.tqdm(range(len(L))):
 
     #ヒートマップの描画
     plt.clf()
-    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.2)
+    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.4)
     plt.colorbar()
     plt.title("Generation: {}".format(i))
     plt.savefig("out/out_{}.png".format(i))

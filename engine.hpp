@@ -30,6 +30,14 @@ mapで管理
 326~406: 辺の形の評価値(終盤)
 407~487: 斜めの形の評価値(終盤)
 488: a(終盤)
+
+2021/28/22 一旦これに戻す
+0~80: 石の形の評価値(序盤)
+81: a(序盤)
+82~162: 石の形の評価値(中盤)
+163: a(中盤)
+164~244: 石の形の評価値(終盤)
+245: a(終盤)
 */
 
 std::map<int,std::map<int,int>>shape_value{
@@ -99,7 +107,7 @@ float calc_shape_value(Board& board,float param[param_size]){
         index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
         
         //斜めのとき
-        if(i>=8)index+=81;
+        //if(i>=8)index+=81;
         val+=param[index+cur_offset];
     }
     //後手番のときは符号を反転

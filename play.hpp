@@ -82,7 +82,7 @@ int play_engine_human(float param[param_size]){
 int play_engine(float param_black[param_size],float param_white[param_size]){
     Board board;
     int move;
-    while(board.is_over()){
+    while(!board.is_over()){
         //for debug
         //disp(board);
 
@@ -94,10 +94,41 @@ int play_engine(float param_black[param_size],float param_white[param_size]){
         disp_teban(board);
         if(board.turn){
             //後手番
-            move=go(board,param_white);
+            //move=go(board,param_white);
+            move=go_random(board);
         }else{
             //先手番
-            move=go(board,param_black);
+            //move=go(board,param_black);
+            move=go_random(board);
+        }
+        //着手
+        board.push(move);
+    }
+
+    disp(board);
+    std::cout<<"black: "<<board.point[0]<<"vs"<<board.point[1]<<" :white\n";
+    if(board.point[0]>board.point[1])return 0;
+    else if(board.point[0]<board.point[1])return 1;
+    else return 2;
+}
+
+//for debug
+int play_engine_random(){
+    Board board;
+    int move;
+    while(!board.is_over()){
+        if(board.is_pass()){
+            board.push(-1);
+            continue;
+        }
+
+        disp_teban(board);
+        if(board.turn){
+            //後手番
+            move=go_random(board);
+        }else{
+            //先手番
+            move=go_random(board);
         }
         //着手
         board.push(move);

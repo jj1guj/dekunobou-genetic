@@ -1,201 +1,251 @@
-#include"dekunobou.hpp"
+//これを従来の盤面クラスに合わせるようにして実装
+//https://qiita.com/sensuikan1973/items/459b3e11d91f3cb37e43
+#include<iostream>
+
 #pragma once
+unsigned long long makeLegalBoard(unsigned long long board_player,unsigned long long board_opponent){
+    //左右端の番人
+    unsigned long long horizontalWatcher=board_opponent&0x7e7e7e7e7e7e7e7e;
+
+    //上下端の番人
+    unsigned long long verticalWatcher=board_opponent&0x00FFFFFFFFFFFF00;
+
+    //全辺の番人
+    unsigned long long allsideWatcher=board_opponent&0x007e7e7e7e7e7e00;
+
+    //空きマスのみにビットが立っているボード
+    unsigned long long blankBoard=~(board_player|board_opponent);
+
+    unsigned long long tmp,legalBoard;
+
+    //8方向で合法手があるかチェックする
+    //左
+    tmp=horizontalWatcher&(board_player<<1ULL);
+    for(int i=0;i<5;++i){
+        tmp|=horizontalWatcher&(tmp<<1ULL);
+    }
+    legalBoard=blankBoard&(tmp<<1ULL);
+
+    //右
+    tmp=horizontalWatcher&(board_player>>1ULL);
+    for(int i=0;i<5;++i){
+        tmp|=horizontalWatcher&(tmp>>1ULL);
+    }
+    legalBoard|=blankBoard&(tmp>>1ULL);
+
+    //上
+    tmp=verticalWatcher&(board_player<<8ULL);
+    for(int i=0;i<5;++i){
+        tmp|=verticalWatcher&(tmp<<8ULL);
+    }
+    legalBoard|=blankBoard&(tmp<<8ULL);
+
+    //下
+    tmp=verticalWatcher&(board_player>>8ULL);
+    for(int i=0;i<5;++i){
+        tmp|=verticalWatcher&(tmp>>8ULL);
+    }
+    legalBoard|=blankBoard&(tmp>>8ULL);
+
+    //右斜め上
+    tmp=allsideWatcher&(board_player<<7ULL);
+    for(int i=0;i<5;++i){
+        tmp|=allsideWatcher&(tmp<<7ULL);
+    }
+    legalBoard|=blankBoard&(tmp<<7ULL);
+
+    //左斜め上
+    tmp=allsideWatcher&(board_player<<9ULL);
+    for(int i=0;i<5;++i){
+        tmp|=allsideWatcher&(tmp<<9ULL);
+    }
+    legalBoard|=blankBoard&(tmp<<9ULL);
+
+    //右斜め下
+    tmp=allsideWatcher&(board_player>>9ULL);
+    for(int i=0;i<5;++i){
+        tmp|=allsideWatcher&(tmp>>9ULL);
+    }
+    legalBoard|=blankBoard&(tmp>>9ULL);
+
+    //左斜め下
+    tmp=allsideWatcher&(board_player>>7ULL);
+    for(int i=0;i<5;++i){
+        tmp|=allsideWatcher&(tmp>>7ULL);
+    }
+    legalBoard|=blankBoard&(tmp>>7ULL);
+
+    return legalBoard;
+}
 
 class Board{
     public:
-    int board[8][8];//先手:1, 後手:-1
-    bool turn=false;//先手ならfalse, 後手ならtrue
-    int point[2];//各手番の獲得枚数{先手, 後手}
-    int flip_limit[8];//縦横斜め8方向どこまでひっくり返していいか
-    //{横(左), 横(右), 縦(上), 縦(下), 右斜め(上), 右斜め(下), 左斜め(上), 左斜め(下)}
-    
-    //序盤・中盤・終盤のどれか
-    //序盤なら0, 中盤なら1, 終盤なら2になる
-    //序盤: 1~20手
-    //中盤: 21~40手
-    //終盤: 41~60手
-    //手数=盤上にある石の個数と定義する(パスは1手と含めない)
+    bool turn=false;//後手のときtrue
+    int ply=1;//今何手目か
+    int point[2]={2,2};
+    unsigned long long board_player=0x0000000810000000;
+    unsigned long long board_opponent=0x0000001008000000;
+    unsigned long long board_black=0x0000000810000000;
+    unsigned long long board_white=0x0000001008000000;
 
-    Board(){init();}
-
-    void init(){
-        for(int i=0;i<64;++i)board[i>>3][i&7]=0;
-        board[3][3]=-1;
-        board[3][4]=1;
-        board[4][3]=1;
-        board[4][4]=-1;
-        point[0]=2;
-        point[1]=2;
+    //指定した座標に何色の石がおいてあるか返す
+    int operator [](int i){
+        i=63-i;
+        if((board_black>>i)&1){
+            return 1;
+        }else if((board_white>>i)&1){
+            return -1;
+        }else{
+            return 0;
+        }
     }
 
-    //パスは0~63以外の数字にする
-    int push(int move){
-        if(0<=move&&move<=63){
-            int row=move>>3,col=move&7;
-            if(board[row][col]!=0)return -1;
+    //座標をビットに変換
+    unsigned long long idToBit(int id){
+        unsigned long long mask=0x8000000000000000;
+        unsigned long long x=id>>3ULL,y=id&7ULL;
+        mask=mask>>y;
+        mask=mask>>(x*8ULL);
+        return mask;
+    }
 
-            int fliped=set_flip_limit(row,col);//石を返した枚数
-            if(fliped==0)return -1;
+    //着手できるか判定
+    bool putable(unsigned long long id){
+        unsigned long long legalBoard=makeLegalBoard(board_player,board_opponent);
 
-            //石を返す
-            board[row][col]=stone[turn];
-            for(int dir=0;dir<8;++dir){
-                for(int i=1;i<flip_limit[dir];++i){
-                    board[row+di[dir]*i][col+dj[dir]*i]=stone[turn];
+        return (id&legalBoard)==id;
+    }
+
+    void push(int id_int){
+        if(0<=id_int&&id_int<64){
+            unsigned long long id=idToBit(id_int);
+            unsigned long long rev=0ULL;
+            
+            for(int i=0;i<8;++i){
+                unsigned long long rev_=0ULL;
+                unsigned long long mask=transfer(id,i);
+                
+                while((mask!=0)&&((mask&board_opponent)!=0)){
+                    rev_|=mask;
+                    mask=transfer(mask,i);
+                }
+
+                if((mask&board_player)!=0){
+                    rev|=rev_;
                 }
             }
-            
-            //着手後の石の枚数を計算
-            point[turn]+=fliped+1;
-            point[!turn]-=fliped;
+
+            //反転する
+            board_player^=(id|rev);
+            board_opponent^=rev;
         }
-        turn=!turn;//手番を反転
-        return 0;
+
+        //手番等の更新
+        swapBoard();
+        ++ply;
     }
 
+    //パスの判定
+    bool is_pass(){
+        unsigned long long playerLegalBoard=makeLegalBoard(board_player,board_opponent);
 
-    //パスは0~63以外の数字にする
-    //石を返しながら盤の重みの差分を算出する
-    //手番側は返り値をそのまま足していいが相手側は(返り値-着手した場所の重み)を引かなくてはならない
-    float push_and_eval(int move,float param[param_size]){
-        float eval_diff=0;
-        if(0<=move&&move<=63){
-            int row=move>>3,col=move&7;
-            if(board[row][col]!=0)return 0;
+        /*Board board;
+        board.turn=turn;
+        board.ply=ply;
+        board.board_player=board_opponent;
+        board.board_opponent=board_player;*/
+        unsigned long long opponentLegalBoard=makeLegalBoard(board_opponent,board_player);
 
-            int fliped=set_flip_limit(row,col);//石を返した枚数
-            if(fliped==0)return 0;
-
-            //石を返す
-            //ここで差分計算を行う
-            int row_n,col_n;
-            board[row][col]=stone[turn];
-            eval_diff+=param[8*row+col];
-            for(int dir=0;dir<8;++dir){
-                for(int i=1;i<flip_limit[dir];++i){
-                    row_n=row+di[dir]*i;
-                    col_n=col+dj[dir]*i;
-                    board[row_n][col_n]=stone[turn];
-                    eval_diff+=param[8*row_n+col_n];
-                }
-            }
-            
-        }
-        turn=!turn;//手番を反転
-        return eval_diff;
+        return (playerLegalBoard == 0x0000000000000000) && (opponentLegalBoard != 0x0000000000000000);
     }
 
-    int set_flip_limit(int row,int col){
-        //ここのループ回数減らしたい
-        //どこまで石を返していいかしらべる
-        //コードもっと短くできる気がする
+    //終局の判定
+    bool is_over(){
+        unsigned long long playerLegalBoard=makeLegalBoard(board_player,board_opponent);
 
-        //返せる石の枚数を返り値にする
-        int flip_count=0;//何枚石を返せるか
-        //横左方向
-        flip_limit[0]=0;
-        for(int i=1;i<=col;++i){
-            if(board[row][col-i]!=stone[!turn]){
-                if(board[row][col-i]==stone[turn])flip_limit[0]=i;
-                break;
-            }
-        }
-        if(flip_limit[0]>1)flip_count+=flip_limit[0]-1;
+        /*Board board;
+        board.turn=turn;
+        board.ply=ply;
+        board.board_player=board_opponent;
+        board.board_opponent=board_player;*/
+        unsigned long long opponentLegalBoard=makeLegalBoard(board_opponent,board_player);
 
-        //横右方向
-        flip_limit[1]=0;
-        for(int i=1;i<=7-col;++i){
-            if(board[row][col+i]!=stone[!turn]){
-                if(board[row][col+i]==stone[turn])flip_limit[1]=i;
-                break;
-            }
-        }
-        if(flip_limit[1]>1)flip_count+=flip_limit[1]-1;
+        return (playerLegalBoard == 0x0000000000000000) && (opponentLegalBoard == 0x0000000000000000);
+    }
 
-        //縦上方向
-        flip_limit[2]=0;
-        for(int i=1;i<=row;++i){
-            if(board[row-i][col]!=stone[!turn]){
-                if(board[row-i][col]==stone[turn])flip_limit[2]=i;
-                break;
-            }
-        }
-        if(flip_limit[2]>1)flip_count+=flip_limit[2]-1;
+    //手番交代
+    void swapBoard(){
+        unsigned long long tmp=board_player;
+        board_player=board_opponent;
+        board_opponent=tmp;
+        turn=!turn;
 
-        //縦下方向
-        flip_limit[3]=0;
-        for(int i=1;i<=7-row;++i){
-            if(board[row+i][col]!=stone[!turn]){
-                if(board[row+i][col]==stone[turn])flip_limit[3]=i;
-                break;
-            }
+        if(turn){
+            board_white=board_player;
+            board_black=board_opponent;
+        }else{
+            board_black=board_player;
+            board_white=board_opponent;
         }
-        if(flip_limit[3]>1)flip_count+=flip_limit[3]-1;
 
-        //右斜め上方向
-        flip_limit[4]=0;
-        for(int i=1;i<=std::min(row,7-col);++i){
-            if(board[row-i][col+i]!=stone[!turn]){
-                if(board[row-i][col+i]==stone[turn])flip_limit[4]=i;
-                break;
-            }
-        }
-        if(flip_limit[4]>1)flip_count+=flip_limit[4]-1;
-
-        //右斜め下方向
-        flip_limit[5]=0;
-        for(int i=1;i<=std::min(7-row,7-col);++i){
-            if(board[row+i][col+i]!=stone[!turn]){
-                if(board[row+i][col+i]==stone[turn])flip_limit[5]=i;
-                break;
-            }
-        }
-        if(flip_limit[5]>1)flip_count+=flip_limit[5]-1;
-
-        //左斜め上方向
-        flip_limit[6]=0;
-        for(int i=1;i<=std::min(row,col);++i){
-            if(board[row-i][col-i]!=stone[!turn]){
-                if(board[row-i][col-i]==stone[turn])flip_limit[6]=i;
-                break;
-            }
-        }
-        if(flip_limit[6]>1)flip_count+=flip_limit[6]-1;
-
-        //左斜め下方向
-        flip_limit[7]=0;
-        for(int i=1;i<=std::min(7-row,col);++i){
-            if(board[row+i][col-i]!=stone[!turn]){
-                if(board[row+i][col-i]==stone[turn])flip_limit[7]=i;
-                break;
-            }
-        }
-        if(flip_limit[7]>1)flip_count+=flip_limit[7]-1;
-        return flip_count;
+        //枚数の更新
+        point[0]=bitcount(board_black);
+        point[1]=bitcount(board_white);
     }
 
     private:
-    int stone[2]={1,-1};
-    //{横(左), 横(右), 縦(上), 縦(下), 右斜め(上), 右斜め(下), 左斜め(上), 左斜め(下)}
-    int di[8]={0,0,-1,1,-1,1,-1,1};
-    int dj[8]={-1,1,0,0,1,1,-1,-1};
+    unsigned long long transfer(unsigned long long id,int dir){
+        if(dir==0){
+            //上
+            return (id << 8) & 0xffffffffffffff00;
+        }else if(dir==1){
+            //右上
+            return (id << 7) & 0x7f7f7f7f7f7f7f00;
+        }else if(dir==2){
+            //右
+            return (id >> 1) & 0x7f7f7f7f7f7f7f7f;
+        }else if(dir==3){
+            //右下
+            return (id >> 9) & 0x007f7f7f7f7f7f7f;
+        }else if(dir==4){
+            //下
+            return (id >> 8) & 0x00ffffffffffffff;
+        }else if(dir==5){
+            //左下
+            return (id >> 7) & 0x00fefefefefefefe;
+        }else if(dir==6){
+            //左
+            return (id << 1) & 0xfefefefefefefefe;
+        }else if(dir==7){
+            //左上
+            return (id << 9) & 0xfefefefefefefe00;
+        }
+        return 0ULL;
+    }
+
+    int bitcount(unsigned long long data){
+        data=(data&0x5555555555555555)+((data&0xaaaaaaaaaaaaaaaa)>>1ULL);//2桁ごとの1の数
+        data=(data&0x3333333333333333)+((data&0xcccccccccccccccc)>>2ULL);//4桁ごとの1の数
+        data=(data&0xf0f0f0f0f0f0f0f)+((data&0xf0f0f0f0f0f0f0f0)>>4ULL);//8桁ごとの1の数
+        data=(data&0xff00ff00ff00ff)+((data&0xff00ff00ff00ff00)>>8ULL);//16桁ごとの1の数
+        data=(data&0xffff0000ffff)+((data&0xffff0000ffff0000)>>16ULL);//32桁ごとの1の数
+        data=(data&0xffffffff)+((data&0xffffffff00000000)>>32ULL);//64桁の1の数
+        return data;
+    }
 };
 
 class LegalMoveList{
     public:
     LegalMoveList(){}
     LegalMoveList(Board board){
+        unsigned long long legalBoard=makeLegalBoard(board.board_player,board.board_opponent);
         move_num=0;
-        for(int i=0;i<8;++i)for(int j=0;j<8;++j){
-            if(board.board[i][j]==0){
-                board.set_flip_limit(i,j);
-                for(int k=0;k<8;++k){
-                    if(board.flip_limit[k]>1){
-                        movelist[move_num]=8*i+j;
-                        ++move_num;
-                        break;
-                    }
-                }
+        unsigned long long id;
+        for(int i=0;i<64;++i){
+            id=board.idToBit(i);
+            if((id&legalBoard)==id){
+                movelist[move_num]=i;
+                ++move_num;
             }
         }
     }
@@ -210,18 +260,19 @@ class LegalMoveList{
     private:
     int movelist[64];
     int move_num;
-
 };
 
+//盤面の表示
 void disp(Board board){
     for(int i=0;i<8;++i){
         for(int j=0;j<8;++j){
-            if(board.board[i][j]==0){
-                std::cout<<"* ";
-            }else if(board.board[i][j]==1){
+            int id=63-(8*i+j);
+            if((board.board_black>>id)&1){
                 std::cout<<"o ";
-            }else{
+            }else if((board.board_white>>id)&1){
                 std::cout<<"x ";
+            }else{
+                std::cout<<". ";
             }
         }
         std::cout<<std::endl;
@@ -229,19 +280,24 @@ void disp(Board board){
     std::cout<<std::endl;
 }
 
+//盤面の表示(合法手表示含む)
 void disp_teban(Board board){
     LegalMoveList moves(board);
-    int moves_count=0;
+    int cur=0;
     for(int i=0;i<8;++i){
         for(int j=0;j<8;++j){
-            //合法手だったらidを表示
-            if(moves.size()>0 && moves[moves_count]==8*i+j && moves_count<moves.size()){
-                ++moves_count;
-                if(moves_count>=10)std::cout<<moves_count;
-                else std::cout<<moves_count<<" ";
-            }else if(board.board[i][j]==0)std::cout<<"* ";
-            else if(board.board[i][j]==1)std::cout<<"o ";
-            else if(board.board[i][j]==-1)std::cout<<"x ";
+            int id=63-(8*i+j);
+            if((board.board_black>>id)&1){
+                std::cout<<"o ";
+            }else if((board.board_white>>id)&1){
+                std::cout<<"x ";
+            }else if(moves[cur]==8*i+j && cur<moves.size()){
+                ++cur;
+                std::cout<<cur;
+                if(cur<10)std::cout<<" ";
+            }else{
+                std::cout<<". ";
+            }
         }
         std::cout<<std::endl;
     }

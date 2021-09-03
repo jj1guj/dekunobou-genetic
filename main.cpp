@@ -27,9 +27,10 @@ int load_eval(std::string filename,float param[param_size]){
 
 int main(int argc,char** argv){
     int threads=0;
-    if(argc>1)threads=atoi(argv[1]);
+    //if(argc>1)threads=atoi(argv[1]);
 
-    load_eval("eval.txt",param);
+    //load_eval("eval.txt",param);
     //人との対決用
-    play_engine_human(param);
+    //play_engine_human(param);
+    play_engine_random();
 }

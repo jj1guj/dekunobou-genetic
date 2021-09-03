@@ -96,10 +96,10 @@ float calc_shape_value(Board& board,float param[param_size],int cur_offset){
     //角付近の形
     for(int i=0;i<12;++i){
         ref1=shape_ref[i][0];ref2=shape_ref[i][1];ref3=shape_ref[i][2];ref4=shape_ref[i][3];
-        index=shape_value[turn_p][board.board[board_x[ref1]][board_y[ref1]]];
-        index+=3*shape_value[turn_p][board.board[board_x[ref2]][board_y[ref2]]];
-        index+=9*shape_value[turn_p][board.board[board_x[ref3]][board_y[ref3]]];
-        index+=27*shape_value[turn_p][board.board[board_x[ref4]][board_y[ref4]]];
+        index=shape_value[turn_p][board[ref1]];
+        index+=3*shape_value[turn_p][board[ref2]];
+        index+=9*shape_value[turn_p][board[ref3]];
+        index+=27*shape_value[turn_p][board[ref4]];
         val+=param[index+cur_offset];
     }
     //後手番のときは符号を反転

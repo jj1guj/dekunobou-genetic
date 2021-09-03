@@ -196,12 +196,12 @@ int main(int argc,char** argv){
 
     //初期の重みを出力
     std::string data_path="data";
-    std::ofstream test_output(data_path+"/out_1.csv");
+    /*std::ofstream test_output(data_path+"/out_1.csv");
     for(int i=0;i<N;++i){
         for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
         test_output<<std::endl;
     }
-    test_output.close();
+    test_output.close();*/
 
     while(true){
         ++itr;
@@ -225,14 +225,14 @@ int main(int argc,char** argv){
         }
 
         //今の重みをファイルに出力
-        if(itr%10==0){
+        /*if(itr%10==0){
             std::ofstream test_output(data_path+"/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
                 for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
                 test_output<<std::endl;
             }
             test_output.close();
-        }
+        }*/
 
         if(itr%10==0){
             end=std::chrono::system_clock::now();

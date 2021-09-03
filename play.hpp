@@ -33,7 +33,6 @@ int play_engine_human(float param[param_size]){
     Board board;
     std::string turn[2]={"Black", "White"};
     std::string s;
-    int pass_count=0;
     int move;
     bool turn_engine;
 
@@ -42,16 +41,14 @@ int play_engine_human(float param[param_size]){
     if(s=="b")turn_engine=true;
     else turn_engine=false;
 
-    while(true){
-        if(pass_count>1)break;
+    while(board.is_over()){
         LegalMoveList moves(board);
-        if(moves.size()==0){
+        if(board.is_pass()){
             std::cout<<"pass\n";
             board.push(-1);
-            ++pass_count;
             continue;
         }
-        pass_count=0;
+
         if(board.turn==turn_engine){
             //disp(board);
             disp_teban(board);
@@ -84,21 +81,15 @@ int play_engine_human(float param[param_size]){
 
 int play_engine(float param_black[param_size],float param_white[param_size]){
     Board board;
-    int pass_count=0;
     int move;
-    while(true){
+    while(board.is_over()){
         //for debug
         //disp(board);
-        
-        if(pass_count>1)break;
-        LegalMoveList moves(board);
 
-        if(moves.size()==0){
+        if(board.is_pass()){
             board.push(-1);
-            ++pass_count;
             continue;
         }
-        pass_count=0;
 
         disp_teban(board);
         if(board.turn){

@@ -223,14 +223,14 @@ class Board{
         return 0ULL;
     }
 
-    int bitcount(unsigned long long num){
-        unsigned long long mask=0x8000000000000000;
-        int count=0;
-        for(int i=0;i<64;++i){
-            if(mask&num!=0)++count;
-            mask=mask>>1ULL;
-        }
-        return count;
+    int bitcount(unsigned long long data){
+        data=(data&0x5555555555555555)+((data&0xaaaaaaaaaaaaaaaa)>>1ULL);//2桁ごとの1の数
+        data=(data&0x3333333333333333)+((data&0xcccccccccccccccc)>>2ULL);//4桁ごとの1の数
+        data=(data&0xf0f0f0f0f0f0f0f)+((data&0xf0f0f0f0f0f0f0f0)>>4ULL);//8桁ごとの1の数
+        data=(data&0xff00ff00ff00ff)+((data&0xff00ff00ff00ff00)>>8ULL);//16桁ごとの1の数
+        data=(data&0xffff0000ffff)+((data&0xffff0000ffff0000)>>16ULL);//32桁ごとの1の数
+        data=(data&0xffffffff)+((data&0xffffffff00000000)>>32ULL);//64桁の1の数
+        return data;
     }
 };
 

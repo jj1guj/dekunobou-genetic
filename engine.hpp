@@ -301,3 +301,11 @@ int go(Board board,float param[param_size]){
     std::cout<<"eval: "<<eval<<std::endl;
     return BestMoves[rnd_select()%bestmoves_num];
 }
+
+//for debug
+//ランダムに打つ
+int go_random(Board board){
+    LegalMoveList moves(board);
+    std::random_device rnd;
+    return moves[rnd()%moves.size()];
+}

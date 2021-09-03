@@ -88,6 +88,18 @@ class Board{
     unsigned long long board_black=0x0000000810000000;
     unsigned long long board_white=0x0000001008000000;
 
+    //指定した座標に何色の石がおいてあるか返す
+    int operator [](int i){
+        i=63-i;
+        if((board_black>>i)&1){
+            return 1;
+        }else if((board_white>>i)&1){
+            return -1;
+        }else{
+            return 0;
+        }
+    }
+
     //座標をビットに変換
     unsigned long long idToBit(int id){
         unsigned long long mask=0x8000000000000000;

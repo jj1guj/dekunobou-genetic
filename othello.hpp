@@ -20,60 +20,60 @@ unsigned long long makeLegalBoard(unsigned long long board_player,unsigned long 
 
     //8方向で合法手があるかチェックする
     //左
-    tmp=horizontalWatcher&(board_player<<1ULL);
+    tmp=horizontalWatcher&(board_player<<1);
     for(int i=0;i<5;++i){
-        tmp|=horizontalWatcher&(tmp<<1ULL);
+        tmp|=horizontalWatcher&(tmp<<1);
     }
-    legalBoard=blankBoard&(tmp<<1ULL);
+    legalBoard=blankBoard&(tmp<<1);
 
     //右
-    tmp=horizontalWatcher&(board_player>>1ULL);
+    tmp=horizontalWatcher&(board_player>>1);
     for(int i=0;i<5;++i){
-        tmp|=horizontalWatcher&(tmp>>1ULL);
+        tmp|=horizontalWatcher&(tmp>>1);
     }
-    legalBoard|=blankBoard&(tmp>>1ULL);
+    legalBoard|=blankBoard&(tmp>>1);
 
     //上
-    tmp=verticalWatcher&(board_player<<8ULL);
+    tmp=verticalWatcher&(board_player<<8);
     for(int i=0;i<5;++i){
-        tmp|=verticalWatcher&(tmp<<8ULL);
+        tmp|=verticalWatcher&(tmp<<8);
     }
-    legalBoard|=blankBoard&(tmp<<8ULL);
+    legalBoard|=blankBoard&(tmp<<8);
 
     //下
-    tmp=verticalWatcher&(board_player>>8ULL);
+    tmp=verticalWatcher&(board_player>>8);
     for(int i=0;i<5;++i){
-        tmp|=verticalWatcher&(tmp>>8ULL);
+        tmp|=verticalWatcher&(tmp>>8);
     }
-    legalBoard|=blankBoard&(tmp>>8ULL);
+    legalBoard|=blankBoard&(tmp>>8);
 
     //右斜め上
-    tmp=allsideWatcher&(board_player<<7ULL);
+    tmp=allsideWatcher&(board_player<<7);
     for(int i=0;i<5;++i){
-        tmp|=allsideWatcher&(tmp<<7ULL);
+        tmp|=allsideWatcher&(tmp<<7);
     }
-    legalBoard|=blankBoard&(tmp<<7ULL);
+    legalBoard|=blankBoard&(tmp<<7);
 
     //左斜め上
-    tmp=allsideWatcher&(board_player<<9ULL);
+    tmp=allsideWatcher&(board_player<<9);
     for(int i=0;i<5;++i){
-        tmp|=allsideWatcher&(tmp<<9ULL);
+        tmp|=allsideWatcher&(tmp<<9);
     }
-    legalBoard|=blankBoard&(tmp<<9ULL);
+    legalBoard|=blankBoard&(tmp<<9);
 
     //右斜め下
-    tmp=allsideWatcher&(board_player>>9ULL);
+    tmp=allsideWatcher&(board_player>>9);
     for(int i=0;i<5;++i){
-        tmp|=allsideWatcher&(tmp>>9ULL);
+        tmp|=allsideWatcher&(tmp>>9);
     }
-    legalBoard|=blankBoard&(tmp>>9ULL);
+    legalBoard|=blankBoard&(tmp>>9);
 
     //左斜め下
-    tmp=allsideWatcher&(board_player>>7ULL);
+    tmp=allsideWatcher&(board_player>>7);
     for(int i=0;i<5;++i){
-        tmp|=allsideWatcher&(tmp>>7ULL);
+        tmp|=allsideWatcher&(tmp>>7);
     }
-    legalBoard|=blankBoard&(tmp>>7ULL);
+    legalBoard|=blankBoard&(tmp>>7);
 
     return legalBoard;
 }
@@ -103,9 +103,9 @@ class Board{
     //座標をビットに変換
     unsigned long long idToBit(int id){
         unsigned long long mask=0x8000000000000000;
-        unsigned long long x=id>>3ULL,y=id&7ULL;
+        unsigned long long x=id>>3,y=id&7;
         mask=mask>>y;
-        mask=mask>>(x*8ULL);
+        mask=mask>>(x*8);
         return mask;
     }
 
@@ -119,10 +119,10 @@ class Board{
     void push(int id_int){
         if(0<=id_int&&id_int<64){
             unsigned long long id=idToBit(id_int);
-            unsigned long long rev=0ULL;
+            unsigned long long rev=0;
             
             for(int i=0;i<8;++i){
-                unsigned long long rev_=0ULL;
+                unsigned long long rev_=0;
                 unsigned long long mask=transfer(id,i);
                 
                 while((mask!=0)&&((mask&board_opponent)!=0)){
@@ -148,12 +148,6 @@ class Board{
     //パスの判定
     bool is_pass(){
         unsigned long long playerLegalBoard=makeLegalBoard(board_player,board_opponent);
-
-        /*Board board;
-        board.turn=turn;
-        board.ply=ply;
-        board.board_player=board_opponent;
-        board.board_opponent=board_player;*/
         unsigned long long opponentLegalBoard=makeLegalBoard(board_opponent,board_player);
 
         return (playerLegalBoard == 0x0000000000000000) && (opponentLegalBoard != 0x0000000000000000);
@@ -162,12 +156,6 @@ class Board{
     //終局の判定
     bool is_over(){
         unsigned long long playerLegalBoard=makeLegalBoard(board_player,board_opponent);
-
-        /*Board board;
-        board.turn=turn;
-        board.ply=ply;
-        board.board_player=board_opponent;
-        board.board_opponent=board_player;*/
         unsigned long long opponentLegalBoard=makeLegalBoard(board_opponent,board_player);
 
         return (playerLegalBoard == 0x0000000000000000) && (opponentLegalBoard == 0x0000000000000000);
@@ -220,16 +208,16 @@ class Board{
             //左上
             return (id << 9) & 0xfefefefefefefe00;
         }
-        return 0ULL;
+        return 0;
     }
 
     int bitcount(unsigned long long data){
-        data=(data&0x5555555555555555)+((data&0xaaaaaaaaaaaaaaaa)>>1ULL);//2桁ごとの1の数
-        data=(data&0x3333333333333333)+((data&0xcccccccccccccccc)>>2ULL);//4桁ごとの1の数
-        data=(data&0xf0f0f0f0f0f0f0f)+((data&0xf0f0f0f0f0f0f0f0)>>4ULL);//8桁ごとの1の数
-        data=(data&0xff00ff00ff00ff)+((data&0xff00ff00ff00ff00)>>8ULL);//16桁ごとの1の数
-        data=(data&0xffff0000ffff)+((data&0xffff0000ffff0000)>>16ULL);//32桁ごとの1の数
-        data=(data&0xffffffff)+((data&0xffffffff00000000)>>32ULL);//64桁の1の数
+        data=(data&0x5555555555555555)+((data&0xaaaaaaaaaaaaaaaa)>>1);//2桁ごとの1の数
+        data=(data&0x3333333333333333)+((data&0xcccccccccccccccc)>>2);//4桁ごとの1の数
+        data=(data&0xf0f0f0f0f0f0f0f)+((data&0xf0f0f0f0f0f0f0f0)>>4);//8桁ごとの1の数
+        data=(data&0xff00ff00ff00ff)+((data&0xff00ff00ff00ff00)>>8);//16桁ごとの1の数
+        data=(data&0xffff0000ffff)+((data&0xffff0000ffff0000)>>16);//32桁ごとの1の数
+        data=(data&0xffffffff)+((data&0xffffffff00000000)>>32);//64桁の1の数
         return data;
     }
 };

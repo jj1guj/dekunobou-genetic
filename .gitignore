@@ -1,7 +1,9 @@
 .vscode/**
 build/**
+build_wsl/**
 out/**
 *.csv
 *.mp4
 *.png
 *.gif
+eval_embed.txt

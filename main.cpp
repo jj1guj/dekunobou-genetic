@@ -3,7 +3,6 @@
 #include<fstream>
 #include<istream>
 #include<vector>
-#include<omp.h>
 #include<sstream>
 
 float param[param_size]={
@@ -304,14 +303,16 @@ int main(int argc,char** argv){
     //盤をセット
     board.point[0]=0;
     board.point[1]=0;
+    board.board_black=0;
+    board.board_white=0;
     for(int i=0;i<64;++i){
-        if(argv[1][i]=='0'){
-            board.board[i/8][i%8]=0;
-        }else if(argv[1][i]=='1'){
-            board.board[i/8][i%8]=1;
+        if(argv[1][i]=='1'){
+            //黒石
+            board.board_black|=(unsigned long long)(1ULL<<(unsigned long long)(63-i));
             ++board.point[0];
-        }else{
-            board.board[i/8][i%8]=-1;
+        }else if(argv[1][i]=='2'){
+            //白石
+            board.board_white|=(unsigned long long)(1ULL<<(unsigned long long)(63-i));
             ++board.point[1];
         }
     }
@@ -319,8 +320,12 @@ int main(int argc,char** argv){
     //手番をセット
     if(argv[2][0]=='0'){
         board.turn=false;
+        board.board_player=board.board_black;
+        board.board_opponent=board.board_white;
     }else if(argv[2][0]=='1'){
         board.turn=true;
+        board.board_player=board.board_white;
+        board.board_opponent=board.board_black;
     }
 
     std::cout<<go(board,param)<<std::endl;

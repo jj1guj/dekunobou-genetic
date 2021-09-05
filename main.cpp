@@ -273,6 +273,10 @@ int load_eval(std::string filename,float param[param_size]){
 
 int main(int argc,char** argv){
     Board board;
+    //for debug
+    //std::chrono::system_clock::time_point start,end;
+    //start=std::chrono::system_clock::now();
+
     //要求通りの入力じゃなかったら負の数を出力
     if(argc!=3){
         std::cout<<"-1\n";
@@ -329,4 +333,9 @@ int main(int argc,char** argv){
     }
 
     std::cout<<go(board,param)<<std::endl;
+
+    //for debug
+    //end=std::chrono::system_clock::now();
+    //double elapsed=std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+    //std::cout<<elapsed<<std::endl;
 }

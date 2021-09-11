@@ -9,7 +9,7 @@ import numpy as np
 import os
 import tqdm
 
-file_path="build/data/"
+file_path="build_wsl/data/"
 file_list=os.listdir(file_path)
 file_list=[i for i in file_list if ".csv" in i]
 file_num=len(os.listdir(file_path))
@@ -40,7 +40,7 @@ for j in tqdm.tqdm(range(len(L))):
 
     #ヒートマップの描画
     plt.clf()
-    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.4)
+    plt.imshow(data,interpolation="nearest",vmin=-1,vmax=1,cmap="jet",aspect=0.2)
     plt.colorbar()
     plt.title("Generation: {}".format(i))
     plt.savefig("out/out_{}.png".format(i))

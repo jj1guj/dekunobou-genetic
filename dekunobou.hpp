@@ -6,10 +6,10 @@
 #include<random>
 #include<cstring>
 #include<string>
-#define param_size 59048
-#define cur_opening 0
-#define cur_middle 59049
-#define cur_ending 118098
+#define param_size 59052
+#define cur_opening 59049
+#define cur_middle 59050
+#define cur_ending 59051
 #define inf 1<<30
 #define ll long long
 

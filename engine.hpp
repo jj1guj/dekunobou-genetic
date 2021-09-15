@@ -21,7 +21,10 @@ mapで管理
 石の配置: *ox
 1*1+3*2+9*0=7
 
-0~3**10-2: 石の配置
+0~3**10-1: 石の配置
+3**10: 盤上にしめる自石の割合(序盤)
+3**10+1: 盤上にしめる自石の割合(中盤)
+3**10+2: 盤上にしめる自石の割合(終盤)
 */
 
 std::map<int,std::map<int,int>>shape_value{
@@ -102,7 +105,8 @@ float calc_shape_value(Board& board,float param[param_size]){
 //評価値の計算(手番側が有利ならプラス)
 float eval_calc(Board board,float param[param_size]){
     //float ans=param[cur_offset]*8*board.point[!board.turn]/(board.point[0]+board.point[1]);
-    float ans=calc_shape_value(board,param);
+    float ans=calc_shape_value(board,param);//石の配置
+    ans+=param[cur_offset]*8*board.point[!board.turn]/(board.point[0]+board.point[1]);
     return ans;
 }
 

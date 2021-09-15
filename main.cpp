@@ -58,7 +58,6 @@ void intersection(float p1[param_size],float p2[param_size],int cur1,int cur2){
     for(int m=0;m<M;++m){
         memcpy(c1,p1,memsize);
         memcpy(c2,p2,memsize);
-        std::cout<<"a\n";
         int l=rnd()%param_size;
         int r=rnd()%param_size;
         while(l==r)r=rnd()%param_size;
@@ -132,7 +131,7 @@ int main(int argc,char** argv){
     match_times=50;//対局回数
     match_times/=2;
     alpha=1e-2;//突然変異を起こす確率
-    timelimit=46*3600;//単位は秒
+    timelimit=16*3600;//単位は秒
     timelimit*=1000.0;//ミリ秒に変換
     itr=0;
 
@@ -160,12 +159,12 @@ int main(int argc,char** argv){
 
     //初期の重みを出力
     std::string data_path="data";
-    /*std::ofstream test_output(data_path+"/out_1.csv");
+    std::ofstream test_output(data_path+"/out_1.csv");
     for(int i=0;i<N;++i){
         for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
         test_output<<std::endl;
     }
-    test_output.close();*/
+    test_output.close();
     while(true){
         ++itr;
         std::cout<<"Generation: "<<itr<<std::endl;
@@ -188,14 +187,14 @@ int main(int argc,char** argv){
         }
 
         //今の重みをファイルに出力
-        /*if(itr%10==-1){
+        if(itr%100==0){
             std::ofstream test_output(data_path+"/out_"+std::to_string(itr)+".csv");
             for(int i=0;i<N;++i){
                 for(int j=0;j<param_size;++j)test_output<<params[i][j]<<",";
                 test_output<<std::endl;
             }
             test_output.close();
-        }*/
+        }
 
         if(itr%10==0){
             end=std::chrono::system_clock::now();

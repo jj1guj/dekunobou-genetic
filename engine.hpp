@@ -124,6 +124,59 @@ float alphabeta(Board board,int depth,float alpha,float beta){
     return eval;
 }
 
+//NegaMax法による先読み
+float negamax(Board board,bool turn,int depth){
+    //候補手の展開
+    LegalMoveList moves(board);
+    if(moves.size()==0){
+        //手番を変えて展開
+        board.push(-1);
+        LegalMoveList moves2(board);
+        //終局
+        if(moves2.size()==0){
+            ++nodes;
+            if(board.turn==turn)return eval_calc(board);
+            else return -eval_calc(board);
+        }
+        //パスだったら1手深く読んでみる(相手側の評価値を計算しないように知るため)
+        return negamax(board,turn, depth-1);
+    }
+
+    float eval=-inf;//どの手番でもmaxを取るため初期値は-inf
+
+    //末端ノードのとき
+    Board board_ref;
+    if(depth<=0){
+        for(int i=0;i<moves.size();++i){
+            ++nodes;
+            board_ref=board;
+            board_ref.push(moves[i]);
+
+            if(board.turn==turn){
+                eval=std::max(eval,eval_calc(board_ref));
+            }else{
+                //エンジン側の手番でないときは評価値の符号を反転させる
+                eval=std::max(eval,-eval_calc(board_ref));
+            }
+        }
+        return eval;
+    }
+
+    //それ以外のとき
+    for(int i=0;i<moves.size();++i){
+        //1手打つ
+        board_ref=board;
+        board_ref.push(moves[i]);
+        if(board.turn==turn_p){
+            eval=std::max(eval,negamax(board_ref,turn,depth-1));
+        }else{
+            //エンジン側の手番でないときは評価値の符号を反転させる
+            eval=std::max(eval,-negamax(board_ref,turn,depth-1));
+        }
+    }
+    return eval;
+}
+
 int go(Board board){
     float eval=-inf;
     LegalMoveList moves(board);
@@ -181,6 +234,7 @@ int go(Board board){
     std::cout<<std::endl;
 
     eval=-inf;
+    eval_alphabeta=-inf;
     for(int i=0;i<moves.size();i++){
         board_ref=board;
         board_ref.push(moves[priority[i]]);
@@ -190,10 +244,14 @@ int go(Board board){
         if(board.point[0]+board.point[1]>=48){
             //残り20手で完全読み
             eval_ref=alphabeta(board_ref,100,-inf,inf);
+            //eval_ref=alphabeta(board_ref,100,-inf,inf);
         }else{
-            eval_ref=alphabeta(board_ref,6,eval,inf);
+            //eval_ref=alphabeta(board_ref,6,eval,inf);
+            eval_alphabeta=alphabeta(board_ref,6,eval_alphabeta,inf);
+            nodes=0;
+            eval_ref=negamax(board_ref,board.turn,6);
         }
-        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<nodes/1000<<"k"<<std::endl;
+        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<minimax(board_ref,6)<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;

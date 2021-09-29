@@ -244,12 +244,12 @@ int go(Board board){
             //eval_ref=alphabeta(board_ref,100,-inf,inf);
         }else{
             //eval_ref=alphabeta(board_ref,6,eval,inf);
-            //eval_alphabeta=alphabeta(board_ref,!board.turn,6,eval_alphabeta,inf);
+            eval_alphabeta=alphabeta(board_ref,board.turn,6,eval_alphabeta,inf);
             nodes=0;
-            //eval_ref=negamax(board_ref,!board.turn,6);
-            eval_ref=alphabeta(board_ref,board.turn,8,eval_alphabeta,inf);
+            eval_ref=negamax(board_ref,board.turn,6);
+            //eval_ref=alphabeta(board_ref,board.turn,8,eval_alphabeta,inf);
         }
-        std::cout<<priority[i]+1<<": "<<eval_ref/*<<" "<<eval_alphabeta<<" "<<minimax(board_ref,!board.turn,6)*/<<" "<<nodes/1000<<"k"<<std::endl;
+        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<minimax(board_ref,board.turn,6)<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;

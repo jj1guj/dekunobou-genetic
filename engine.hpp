@@ -2,17 +2,16 @@
 #include"othello.hpp"
 //minimaxで末端ノードのときに出力する値
 ll nodes;
-bool turn_p;//エンジン側の手番(応急処置)
 
 //評価値の計算(手番側が有利ならプラス)
-float eval_calc(Board board){
+float eval_calc(Board board,bool turn){
     //盤上の自石の割合を返す
     //return (float)board.point[turn_p]/(board.point[0]+board.point[1]);
-    return board.point[turn_p]-board.point[!turn_p];
+    return board.point[turn]-board.point[!turn];
 }
 
 //minimax法による先読み
-float minimax(Board board,int depth){
+float minimax(Board board,bool turn,int depth){
     //候補手の展開
     LegalMoveList moves(board);
     if(moves.size()==0){
@@ -22,15 +21,15 @@ float minimax(Board board,int depth){
         //終局
         if(moves2.size()==0){
             ++nodes;
-            return eval_calc(board);
+            return eval_calc(board,turn);
         }
         //パスだったら1手深く読んでみる(相手側の評価値を計算しないように知るため)
-        return minimax(board, depth-1);
+        return minimax(board,turn,depth-1);
         //moves=moves2;
     }
 
     float eval;
-    if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
+    if(board.turn==turn)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
     else eval=inf;//相手が手番のときは評価値の最小値を求める
     //末端ノードのとき
     Board board_ref;
@@ -39,10 +38,10 @@ float minimax(Board board,int depth){
             ++nodes;
             board_ref=board;
             board_ref.push(moves[i]);
-            if(board.turn==turn_p){
-                eval=std::max(eval,eval_calc(board_ref));
+            if(board.turn==turn){
+                eval=std::max(eval,eval_calc(board_ref,turn));
             }else{
-                eval=std::min(eval,eval_calc(board_ref));
+                eval=std::min(eval,eval_calc(board_ref,turn));
             }
         }
         return eval;
@@ -53,10 +52,10 @@ float minimax(Board board,int depth){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
-        if(board.turn==turn_p){
-            eval=std::max(eval,minimax(board_ref,depth-1));
+        if(board.turn==turn){
+            eval=std::max(eval,minimax(board_ref,turn,depth-1));
         }else{
-            eval=std::min(eval,minimax(board_ref,depth-1));
+            eval=std::min(eval,minimax(board_ref,turn,depth-1));
         }
     }
     return eval;
@@ -65,7 +64,7 @@ float minimax(Board board,int depth){
 //αβ法による先読み
 //α: 評価値の最小値
 //β: 評価値の最大値
-float alphabeta(Board board,int depth,float alpha,float beta){
+float alphabeta(Board board,bool turn,int depth,float alpha,float beta){
     //候補手の展開
     LegalMoveList moves(board);
     if(moves.size()==0){
@@ -75,14 +74,14 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         //終局
         if(moves2.size()==0){
             ++nodes;
-            return eval_calc(board);
+            return eval_calc(board,turn);
         }
-        return alphabeta(board,depth-1,alpha,beta);
+        return alphabeta(board,turn,depth-1,alpha,beta);
         //moves=moves2;
     }
 
     float eval;
-    if(board.turn==turn_p)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
+    if(board.turn==turn)eval=-inf;//エンジン側が手番のときは評価値の最大値を求める
     else eval=inf;//相手が手番のときは評価値の最小値を求める
     Board board_ref;
 
@@ -92,12 +91,12 @@ float alphabeta(Board board,int depth,float alpha,float beta){
             ++nodes;
             board_ref=board;
             board_ref.push(moves[i]);
-            if(board.turn==turn_p){
-                eval=std::max(eval,eval_calc(board_ref));
+            if(board.turn==turn){
+                eval=std::max(eval,eval_calc(board_ref,turn));
                 if(eval>beta)break;
                 alpha=std::max(alpha,eval);
             }else{
-                eval=std::min(eval,eval_calc(board_ref));
+                eval=std::min(eval,eval_calc(board_ref,turn));
                 if(eval<alpha)break;
                 beta=std::min(beta,eval);
             }
@@ -110,8 +109,8 @@ float alphabeta(Board board,int depth,float alpha,float beta){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
-        eval_ref=alphabeta(board_ref,depth-1,alpha,beta);
-        if(board.turn==turn_p){
+        eval_ref=alphabeta(board_ref,turn,depth-1,alpha,beta);
+        if(board.turn==turn){
             eval=std::max(eval,eval_ref);
             if(eval>beta)break;
             alpha=std::max(alpha,eval);
@@ -135,8 +134,8 @@ float negamax(Board board,bool turn,int depth){
         //終局
         if(moves2.size()==0){
             ++nodes;
-            if(board.turn==turn)return eval_calc(board);
-            else return -eval_calc(board);
+            if(board.turn==turn)return eval_calc(board,turn);
+            else return -eval_calc(board,turn);
         }
         //パスだったら1手深く読んでみる(相手側の評価値を計算しないように知るため)
         return negamax(board,turn, depth-1);
@@ -153,10 +152,10 @@ float negamax(Board board,bool turn,int depth){
             board_ref.push(moves[i]);
 
             if(board.turn==turn){
-                eval=std::max(eval,eval_calc(board_ref));
+                eval=std::max(eval,eval_calc(board_ref,turn));
             }else{
                 //エンジン側の手番でないときは評価値の符号を反転させる
-                eval=std::max(eval,-eval_calc(board_ref));
+                eval=std::max(eval,-eval_calc(board_ref,turn));
             }
         }
         return eval;
@@ -167,7 +166,7 @@ float negamax(Board board,bool turn,int depth){
         //1手打つ
         board_ref=board;
         board_ref.push(moves[i]);
-        if(board.turn==turn_p){
+        if(board.turn==turn){
             eval=std::max(eval,negamax(board_ref,turn,depth-1));
         }else{
             //エンジン側の手番でないときは評価値の符号を反転させる
@@ -182,8 +181,6 @@ int go(Board board){
     LegalMoveList moves(board);
     //1手だけのときはその手を返す
     if(moves.size()==1)return moves[0];
-
-    turn_p=board.turn;//エンジン側の手番を取得
 
     int BestMoves[64];
     int bestmoves_num;
@@ -210,7 +207,7 @@ int go(Board board){
         board_ref=board;
         board_ref.push(moves[i]);
         //evals[i]=eval_calc(board,moves[i],param);
-        evals[i]=alphabeta(board_ref,4,eval,inf);
+        evals[i]=alphabeta(board_ref,board.turn,4,eval,inf);
         evals_sort[i]=evals[i];
         eval=std::max(evals[i],eval);
         selected[i]=false;
@@ -243,15 +240,16 @@ int go(Board board){
         nodes=0;
         if(board.point[0]+board.point[1]>=48){
             //残り20手で完全読み
-            eval_ref=alphabeta(board_ref,100,-inf,inf);
+            eval_ref=alphabeta(board_ref,board.turn,100,-inf,inf);
             //eval_ref=alphabeta(board_ref,100,-inf,inf);
         }else{
             //eval_ref=alphabeta(board_ref,6,eval,inf);
-            eval_alphabeta=alphabeta(board_ref,6,eval_alphabeta,inf);
+            //eval_alphabeta=alphabeta(board_ref,!board.turn,6,eval_alphabeta,inf);
             nodes=0;
-            eval_ref=negamax(board_ref,board.turn,6);
+            //eval_ref=negamax(board_ref,!board.turn,6);
+            eval_ref=alphabeta(board_ref,board.turn,8,eval_alphabeta,inf);
         }
-        std::cout<<priority[i]+1<<": "<<eval_ref<<" "<<eval_alphabeta<<" "<<minimax(board_ref,6)<<" "<<nodes/1000<<"k"<<std::endl;
+        std::cout<<priority[i]+1<<": "<<eval_ref/*<<" "<<eval_alphabeta<<" "<<minimax(board_ref,!board.turn,6)*/<<" "<<nodes/1000<<"k"<<std::endl;
 
         if(eval_ref>eval){
             bestmoves_num=0;
